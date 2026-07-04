@@ -3,13 +3,23 @@ import { onMounted, onUnmounted, ref } from "vue";
 import { useScrollProgress, type AnimHandle } from "../../lib/gsap";
 
 /**
- * Local → global, literally: the coordinates drift from Jakarta across the
- * Pacific to San Francisco as the story scrolls.
+ * Local → global, literally: the coordinates trace the real journey as the
+ * story scrolls — Jakarta (Sari Tirta) → Australia (NexLaw) → Hong Kong
+ * (Mazecare) → Wyoming (Tesserac), then full circle home for the epilogue.
+ * Longitudes keep heading east (past 180°, past 360°) so the drift reads
+ * as one trip around the world, never a backtrack. Each stop's `p` matches
+ * that chapter's share of the scroll (8 equal sections).
  */
-const JAKARTA = { lat: -6.2088, lon: 106.8456, label: "Jakarta" };
-const SAN_FRANCISCO = { lat: 37.7749, lon: -122.4194, label: "San Francisco" };
-// travel east across the date line, not backwards over Europe
-const LON_EAST = 360 + SAN_FRANCISCO.lon;
+const STOPS = [
+  { p: 0.0, lat: -6.2088, lon: 106.8456, label: "Jakarta" }, // 00 · hero
+  { p: 0.143, lat: -6.2088, lon: 106.8456, label: "Jakarta" }, // 01 · Sari Tirta
+  { p: 0.285, lat: -33.8688, lon: 151.2093, label: "Australia (Remote)" }, // 02 · NexLaw
+  { p: 0.428, lat: 22.3193, lon: 114.1694, label: "Hong Kong (Remote)" }, // 03 · Mazecare
+  { p: 0.57, lat: 22.3193, lon: 114.1694, label: "Hong Kong (Remote)" }, // 04 · the leap
+  { p: 0.713, lat: 41.14, lon: 360 - 104.82, label: "Wyoming (Remote)" }, // 05 · Tesserac
+  { p: 0.856, lat: 41.14, lon: 360 - 104.82, label: "Wyoming (Remote)" }, // 06 · ethos
+  { p: 1.0, lat: -6.2088, lon: 360 + 106.8456, label: "Anywhere" }, // 07 · home
+] as const;
 
 function fmt(deg: number, axis: "lat" | "lon"): string {
   let d = deg;
@@ -25,17 +35,24 @@ function fmt(deg: number, axis: "lat" | "lon"): string {
   return `${String(whole).padStart(2, "0")}°${String(mins).padStart(2, "0")}'${dir}`;
 }
 
-const coords = ref(`${fmt(JAKARTA.lat, "lat")} ${fmt(JAKARTA.lon, "lon")}`);
-const place = ref(JAKARTA.label);
+const first = STOPS[0]!;
+const coords = ref(`${fmt(first.lat, "lat")} ${fmt(first.lon, "lon")}`);
+const place = ref<string>(first.label);
 
 let handle: AnimHandle | null = null;
 
 onMounted(() => {
   handle = useScrollProgress((p) => {
-    const lat = JAKARTA.lat + (SAN_FRANCISCO.lat - JAKARTA.lat) * p;
-    const lon = JAKARTA.lon + (LON_EAST - JAKARTA.lon) * p;
+    const clamped = Math.min(Math.max(p, 0), 1);
+    const next = STOPS.findIndex((s) => s.p >= clamped);
+    const i = Math.max(1, next === -1 ? STOPS.length - 1 : next);
+    const a = STOPS[i - 1]!;
+    const b = STOPS[i]!;
+    const t = b.p === a.p ? 0 : (clamped - a.p) / (b.p - a.p);
+    const lat = a.lat + (b.lat - a.lat) * t;
+    const lon = a.lon + (b.lon - a.lon) * t;
     coords.value = `${fmt(lat, "lat")} ${fmt(lon, "lon")}`;
-    place.value = p < 0.5 ? JAKARTA.label : SAN_FRANCISCO.label;
+    place.value = t < 0.5 ? a.label : b.label;
   });
 });
 onUnmounted(() => handle?.kill());
