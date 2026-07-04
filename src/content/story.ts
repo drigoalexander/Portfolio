@@ -78,9 +78,10 @@ export const chapters: Chapter[] = [
     eyebrow: "Origin",
     title: "IT STARTED SMALL.",
     body:
-      "A first job at Sari Tirta Indonesia — and a mentor who gave me more " +
-      "than a craft. She taught me how to build software and how to be a " +
-      "person while building it. Everything after grew from her lessons.",
+      "My first job, at Sari Tirta Indonesia — and the mentor who shaped " +
+      "everything. She taught me two crafts at once: how to build " +
+      "software, and who to be while building it. Everything since grew " +
+      "from her lessons.",
     meta: "Sari Tirta Indonesia · Jakarta",
     tone: "dark",
     ground: "#1f1d17",
@@ -91,10 +92,10 @@ export const chapters: Chapter[] = [
     eyebrow: "The grind",
     title: "THE PROVING GROUND.",
     body:
-      "NexLaw AI, my first remote company — an ocean away in Australia. The " +
-      "pressure was heavy; the growth was heavier. I ground it out, proved " +
-      "my place, and earned the trust to bring my own team through the " +
-      "door. Then the company moved to the SF Bay Area — and the world got " +
+      "NexLaw AI, my first remote company — an ocean away in Australia. " +
+      "The pressure was heavy; the growth was heavier. I ground it out, " +
+      "proved my place, and earned the trust to bring my own team through " +
+      "the door. When the company moved to the SF Bay Area, the world got " +
       "wider.",
     meta: "NexLaw AI · Australia → SF Bay Area",
     tone: "dark",
@@ -106,10 +107,10 @@ export const chapters: Chapter[] = [
     eyebrow: "The turn inward",
     title: "KNOWING WHAT MATTERS.",
     body:
-      "Mazecare, Hong Kong. My CEO taught me what no framework could: treat " +
-      "people as people. He guarded our evenings like they were his own, " +
-      "and showed me that respect is an engineering practice too. Leaving " +
-      "wasn't the plan — but even hard goodbyes become roots.",
+      "Mazecare, Hong Kong. My CEO taught me what no framework could: " +
+      "treat people as people. He guarded our evenings like they were his " +
+      "own — respect, it turns out, is an engineering practice. Leaving " +
+      "wasn't the plan. Even hard goodbyes become roots.",
     meta: "Mazecare · Hong Kong",
     tone: "dark",
     ground: "#323026",
@@ -120,10 +121,10 @@ export const chapters: Chapter[] = [
     eyebrow: "The decision",
     title: "THE LEAP.",
     body:
-      "Growth kept asking the same question: stay safe, or stay true? I " +
-      "kept choosing my own path — out of the local, out of the " +
-      "comfortable, through downs that made the ups mean something. The " +
-      "risk was the point; the stretch was the reward.",
+      "Growth kept asking one question: stay safe, or stay true? I chose " +
+      "my own path every time — out of the local, out of the comfortable, " +
+      "through downs that made the ups mean something. The risk was the " +
+      "point. The stretch was the reward.",
     meta: "Ups, downs, onward",
     tone: "dark",
     ground: "#3f3b2f",
@@ -135,8 +136,8 @@ export const chapters: Chapter[] = [
     title: "THE WIDER WORLD.",
     body:
       "Tesserac AI — Wyoming, USA. The same person from the small room, " +
-      "still growing on purpose: building products that carry real value " +
-      "to the team and to the people who use them.",
+      "with a wider canvas: building products that matter twice — to the " +
+      "team that ships them, and to the people who live with them.",
     meta: "Present · Tesserac AI · USA",
     tone: "sand",
     ground: "#a69374",
@@ -147,10 +148,9 @@ export const chapters: Chapter[] = [
     eyebrow: "How I work",
     title: "SOFTWARE, LIKE ART.",
     body:
-      "I don't build software that merely works. I build software people " +
-      "want to use — where the experience is the feature: considered, " +
-      "felt, cared for. Function is the floor. The art is everything " +
-      "above it.",
+      "I don't stop at software that works. I build software people want " +
+      "to use — where the experience is the feature, not an afterthought. " +
+      "Function is the floor. The art is everything above it.",
     tone: "sand",
     ground: "#b09e7f",
   },
@@ -160,8 +160,9 @@ export const chapters: Chapter[] = [
     eyebrow: "Epilogue",
     title: "LET'S BUILD SOMETHING.",
     body:
-      "Look up — the apples haven't fallen yet. This is only the beginning " +
-      "of the journey; the harvest is still ahead.",
+      "Look up — the apples haven't fallen yet. This story is still " +
+      "growing, and the best harvest is ahead. Building something people " +
+      "should love to use? I want to hear about it.",
     meta: "Anywhere · Anytime",
     tone: "sand",
     ground: "#c3ab80",
