@@ -1,7 +1,10 @@
 /**
- * The single source of copy for the landing page. Everything here is
- * PLACEHOLDER — structure and motion are the deliverable; real words swap in
- * later without touching any section layout.
+ * The single source of copy for the landing page — the real journey:
+ * Sari Tirta (the first job, the mentor) → NexLaw AI (the remote grind,
+ * Australia → SF) → Mazecare (Hong Kong, the human lesson) → Tesserac AI
+ * (now). The through-line is GROWING — an own-made path with its ups and
+ * downs — and the belief that software should be built like art: not just
+ * functioning, but an experience people want to use.
  */
 
 export interface ChapterStat {
@@ -26,7 +29,7 @@ export interface Chapter {
   /** display title — arrives scrambled, resolves to this */
   title: string;
   body?: string;
-  /** small meta line, e.g. "2018 · Jakarta, Indonesia" */
+  /** small meta line, e.g. "Mazecare · Hong Kong" */
   meta?: string;
   /** ground the scene sits on */
   tone: "dark" | "sand";
@@ -48,13 +51,13 @@ export const site = {
   name: "Drigo Alexander",
   role: "Software Engineer",
   wordmark: "DRIGO ALEXANDER",
-  email: "hello@drigo.example",
+  email: "drigosihombinga@gmail.com",
   socials: [
     { label: "GitHub", href: "https://github.com/drigoalexander" },
     { label: "LinkedIn", href: "#" },
     { label: "X", href: "#" },
   ],
-  heroMeta: ["EST. 2018 · JAKARTA", "PORTFOLIO · VOL. 01", "PRESENT · UNITED STATES"],
+  heroMeta: ["JAKARTA, INDONESIA", "PORTFOLIO · VOL. 01", "NOW · TESSERAC AI"],
   /** copy ring for the rotating hero badge */
   badgeWords: "GROWING · KNOWING · BUILDING · GROWING · KNOWING · BUILDING · ",
 } as const;
@@ -75,41 +78,39 @@ export const chapters: Chapter[] = [
     eyebrow: "Origin",
     title: "IT STARTED SMALL.",
     body:
-      "A first real role at a small company in Indonesia. Wearing every hat, " +
-      "fixing what broke, learning by shipping — the whole world fit inside " +
-      "one room, and that was enough to begin.",
-    meta: "2018 · Jakarta, Indonesia",
+      "A first job at Sari Tirta Indonesia — and a mentor who gave me more " +
+      "than a craft. She taught me how to build software and how to be a " +
+      "person while building it. Everything after grew from her lessons.",
+    meta: "Sari Tirta Indonesia · Jakarta",
     tone: "dark",
     ground: "#1f1d17",
   },
   {
     id: "craft",
     num: "02",
-    eyebrow: "Craft",
-    title: "LEARNING THE CRAFT.",
+    eyebrow: "The grind",
+    title: "THE PROVING GROUND.",
     body:
-      "Discipline over inspiration. Fundamentals, code review, shipping under " +
-      "constraints — the slow, deliberate practice that turns a job into a " +
-      "craft and a beginner into an engineer.",
-    meta: "The deliberate years",
+      "NexLaw AI, my first remote company — an ocean away in Australia. The " +
+      "pressure was heavy; the growth was heavier. I ground it out, proved " +
+      "my place, and earned the trust to bring my own team through the " +
+      "door. Then the company moved to the SF Bay Area — and the world got " +
+      "wider.",
+    meta: "NexLaw AI · Australia → SF Bay Area",
     tone: "dark",
     ground: "#26241d",
-    stats: [
-      { value: 6, label: "Years shipping" },
-      { value: 24, suffix: "+", label: "Projects delivered" },
-    ],
   },
   {
     id: "knowing",
     num: "03",
     eyebrow: "The turn inward",
-    title: "KNOWING MYSELF.",
+    title: "KNOWING WHAT MATTERS.",
     body:
-      "Somewhere between the deadlines, a quieter question: what is this " +
-      "actually for? Understanding what drives the work — clarity, care, the " +
-      "long game — mattered more than any framework. The noise resolved into " +
-      "a signal, and the signal had a direction.",
-    meta: "The quiet chapter",
+      "Mazecare, Hong Kong. My CEO taught me what no framework could: treat " +
+      "people as people. He guarded our evenings like they were his own, " +
+      "and showed me that respect is an engineering practice too. Leaving " +
+      "wasn't the plan — but even hard goodbyes become roots.",
+    meta: "Mazecare · Hong Kong",
     tone: "dark",
     ground: "#323026",
   },
@@ -119,10 +120,11 @@ export const chapters: Chapter[] = [
     eyebrow: "The decision",
     title: "THE LEAP.",
     body:
-      "Choosing to reach beyond the local. Not to leave something behind — " +
-      "to test whether the growth was real. The risk was the point; the " +
-      "stretch was the reward.",
-    meta: "The stretch",
+      "Growth kept asking the same question: stay safe, or stay true? I " +
+      "kept choosing my own path — out of the local, out of the " +
+      "comfortable, through downs that made the ups mean something. The " +
+      "risk was the point; the stretch was the reward.",
+    meta: "Ups, downs, onward",
     tone: "dark",
     ground: "#3f3b2f",
   },
@@ -132,25 +134,23 @@ export const chapters: Chapter[] = [
     eyebrow: "Now",
     title: "THE WIDER WORLD.",
     body:
-      "An AI company in the United States. The same person from the small " +
-      "room — with a bigger canvas, sharper tools, and the clarity to use " +
-      "them well.",
-    meta: "Present · United States",
+      "Tesserac AI — Wyoming, USA. The same person from the small room, " +
+      "still growing on purpose: building products that carry real value " +
+      "to the team and to the people who use them.",
+    meta: "Present · Tesserac AI · USA",
     tone: "sand",
     ground: "#a69374",
-    stats: [
-      { value: 12, label: "Time zones shipped across" },
-      { value: 3, suffix: "M+", label: "People touched by the work" },
-    ],
   },
   {
     id: "ethos",
     num: "06",
     eyebrow: "How I work",
-    title: "CRAFT. OWNERSHIP. CLARITY.",
+    title: "SOFTWARE, LIKE ART.",
     body:
-      "Build it like you'll maintain it forever. Own the outcome, not the " +
-      "ticket. Say the simple thing plainly.",
+      "I don't build software that merely works. I build software people " +
+      "want to use — where the experience is the feature: considered, " +
+      "felt, cared for. Function is the floor. The art is everything " +
+      "above it.",
     tone: "sand",
     ground: "#b09e7f",
   },

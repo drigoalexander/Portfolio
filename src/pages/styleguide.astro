@@ -7,9 +7,19 @@ import CinePanel from "../components/ui/CinePanel.astro";
 const dusk = [950, 900, 800, 700, 600, 500, 400, 300, 200, 100, 50];
 const gold = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 const semantic = [
-  "bg", "surface", "surface-raised", "border",
-  "muted", "ink", "ink-soft", "accent", "accent-strong", "accent-deep",
-  "sand", "sand-ink", "sand-ink-soft",
+  "bg",
+  "surface",
+  "surface-raised",
+  "border",
+  "muted",
+  "ink",
+  "ink-soft",
+  "accent",
+  "accent-strong",
+  "accent-deep",
+  "sand",
+  "sand-ink",
+  "sand-ink-soft",
 ];
 ---
 
@@ -17,94 +27,70 @@ const semantic = [
   <main class="min-h-screen bg-bg text-ink-soft px-8 py-16 space-y-16">
     <header class="space-y-2">
       <h1 class="text-5xl text-ink">Foundation Styleguide</h1>
-      <p class="text-muted">Tokens &amp; animation harness — dark ground + sand ground.</p>
+      <p class="text-muted">
+        Tokens &amp; animation harness — dark ground + sand ground.
+      </p>
     </header>
 
     <section class="space-y-4">
       <h2 class="text-2xl text-accent">Semantic tokens</h2>
       <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-        {semantic.map((t) => (
-          <div class="rounded-lg border border-border overflow-hidden">
-            <div class="h-16" style={`background-color: var(--color-${t})`}></div>
-            <div class="p-2 text-xs text-ink-soft">--color-{t}</div>
-          </div>
-        ))}
+        {
+          semantic.map((t) => (
+            <div class="rounded-lg border border-border overflow-hidden">
+              <div class="h-16" style={`background-color: var(--color-${t})`} />
+              <div class="p-2 text-xs text-ink-soft">--color-{t}</div>
+            </div>
+          ))
+        }
       </div>
     </section>
 
     <section class="space-y-4">
       <h2 class="text-2xl text-accent">dusk</h2>
       <div class="flex flex-wrap gap-2">
-        {dusk.map((n) => (
-          <div class="w-20">
-            <div class="h-14 rounded border border-border" style={`background-color: var(--color-dusk-${n})`}></div>
-            <div class="text-[10px] text-muted mt-1">{n}</div>
-          </div>
-        ))}
+        {
+          dusk.map((n) => (
+            <div class="w-20">
+              <div
+                class="h-14 rounded border border-border"
+                style={`background-color: var(--color-dusk-${n})`}
+              />
+              <div class="text-[10px] text-muted mt-1">{n}</div>
+            </div>
+          ))
+        }
       </div>
     </section>
 
     <section class="space-y-4">
       <h2 class="text-2xl text-accent">gold</h2>
       <div class="flex flex-wrap gap-2">
-        {gold.map((n) => (
-          <div class="w-20">
-            <div class="h-14 rounded border border-border" style={`background-color: var(--color-gold-${n})`}></div>
-            <div class="text-[10px] text-muted mt-1">{n}</div>
-          </div>
-        ))}
+        {
+          gold.map((n) => (
+            <div class="w-20">
+              <div
+                class="h-14 rounded border border-border"
+                style={`background-color: var(--color-gold-${n})`}
+              />
+              <div class="text-[10px] text-muted mt-1">{n}</div>
+            </div>
+          ))
+        }
       </div>
     </section>
 
     <section class="space-y-4">
       <h2 class="text-2xl text-accent">Atmosphere</h2>
       <p class="text-muted text-sm max-w-prose">
-        Cinematic panel: solid warm ground + glitch raster + film grain. The sand
-        swatch is the light-section ground with its own ink.
+        Cinematic panel: solid warm ground + glitch raster + film grain. The
+        sand swatch is the light-section ground with its own ink.
       </p>
       <div class="grid gap-4 md:grid-cols-2">
         <CinePanel ratio="16/9" tone="warm" class="rounded-2xl" />
         <div class="rounded-2xl bg-sand text-sand-ink grid place-items-center">
           <span class="font-display text-3xl">sand ground</span>
         </div>
-      </div>
-    </section>
-
-    <section class="space-y-8">
-      <h2 class="text-2xl text-accent">Motion harness</h2>
-
-      <p data-anim="reveal" class="text-ink-soft max-w-prose">
-        This paragraph reveals on scroll via the declarative [data-anim] layer —
-        zero per-component JS.
-      </p>
-
-      <h3 data-anim="split" class="text-4xl text-ink max-w-3xl">
-        Split-text headings sweep in word by word as they enter the viewport.
-      </h3>
-
-      <h3
-        data-anim="scramble"
-        data-anim-duration="2"
-        class="text-4xl text-ink max-w-3xl uppercase"
-      >
-        SCRAMBLE RESOLVES NOISE INTO CLARITY.
-      </h3>
-
-      <CinePanel
-        ratio="21/9"
-        tone="olive"
-        class="max-w-2xl rounded-xl"
-        data-anim="clip"
-        data-anim-from="18"
-      />
-
-      <div class="flex gap-14 text-ink">
-        <StatCounter client:visible value={24} suffix="+" label="Counter demo" />
-        <StatCounter client:visible value={6} label="Years" />
-      </div>
-
-      <div class="py-8">
-        <MagneticButton client:visible label="Magnetic button" />
       </div>
     </section>
   </main>

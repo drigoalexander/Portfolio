@@ -4,14 +4,15 @@ import { chapters } from "../../content/story";
 const c = chapters[3]!;
 ---
 
-<!-- the turn inward — the text leads; the roots reach down beside it -->
+<!-- the turn inward — the text leads from the right (clear sky at this
+     framing; the cottage owns the left), the roots reach down beside it -->
 <section
   id={c.id}
   data-chapter="3"
   aria-labelledby={`${c.id}-title`}
-  class="relative flex min-h-svh items-center py-[28vh] pr-6 pl-10 md:pl-[9vw]"
+  class="relative flex min-h-svh items-center justify-end py-[28vh] pr-10 pl-6 md:pr-[9vw]"
 >
-  <div class="relative z-10 max-w-md space-y-6">
+  <div class="relative z-10 flex max-w-md flex-col items-end space-y-6 text-right">
     <h2
       id={`${c.id}-title`}
       data-anim="split"

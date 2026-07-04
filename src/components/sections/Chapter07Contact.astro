@@ -38,22 +38,8 @@ const c = chapters[7]!;
       {site.email}
     </a>
 
-    <nav aria-label="Social links">
-      <ul class="flex items-center gap-8">
-        {
-          site.socials.map((s) => (
-            <li>
-              <a
-                href={s.href}
-                class="font-sans text-[10px] tracking-[0.3em] text-sand-ink-soft uppercase transition-colors hover:text-sand-ink focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sand-ink"
-              >
-                {s.label}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
+    <!-- social links hidden for now (per Drigo) — data stays in story.ts;
+         restore this nav when the profiles are ready to show -->
 
     <p class="pt-4 font-sans text-[9px] tracking-[0.35em] text-sand-ink-soft/70 uppercase">
       © 2026 {site.name} — {c.meta}

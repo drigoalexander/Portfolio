@@ -259,16 +259,18 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
       <path stroke-width="1.25" stroke-opacity="0.25" d="M 434 774 c 18 -5 44 -5 64 0" />
       <path stroke-width="1" stroke-opacity="0.55" d="M 330 798 c 4 -5 9 -5 13 0 c 4 -5 9 -5 12 0" />
       <path stroke-width="1" stroke-opacity="0.45" d="M 386 812 c 3 -4 7 -4 10 0 c 3 -4 7 -4 10 0" />
-      <!-- the stone wall at the hill's foot -->
-      <path stroke-width="1.75" d="M 640 1030 C 685 1026, 730 1029, 778 1026" />
-      <path stroke-width="1.75" d="M 641 1058 l -1 -28" />
-      <path stroke-width="1.75" d="M 777 1056 l 1 -30" />
-      <path stroke-width="1.25" d="M 672 1032 l 1 24" />
-      <path stroke-width="1.25" d="M 706 1030 l 1 25" />
-      <path stroke-width="1.25" d="M 742 1030 l 0 24" />
-      <path stroke-width="1" d="M 655 1044 l 18 -1" />
-      <path stroke-width="1" d="M 715 1042 l 20 -1" />
-      <path stroke-width="1" d="M 690 1046 l 14 0" />
+      <!-- the stone wall — kept faint so chapter copy stays legible over it -->
+      <g stroke-opacity="0.5">
+        <path stroke-width="1.75" d="M 640 1030 C 685 1026, 730 1029, 778 1026" />
+        <path stroke-width="1.75" d="M 641 1058 l -1 -28" />
+        <path stroke-width="1.75" d="M 777 1056 l 1 -30" />
+        <path stroke-width="1.25" d="M 672 1032 l 1 24" />
+        <path stroke-width="1.25" d="M 706 1030 l 1 25" />
+        <path stroke-width="1.25" d="M 742 1030 l 0 24" />
+        <path stroke-width="1" d="M 655 1044 l 18 -1" />
+        <path stroke-width="1" d="M 715 1042 l 20 -1" />
+        <path stroke-width="1" d="M 690 1046 l 14 0" />
+      </g>
       <!-- far grass row -->
       {farBlades.map((b) => (
         <path class="grass-dim" stroke-width="1.25" stroke-opacity="0.6" d={grassD(b.x, b.lean, b.tall)} />
