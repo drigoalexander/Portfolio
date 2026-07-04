@@ -97,18 +97,18 @@ Replace the entire contents of `src/styles/global.css`:
   );
 }
 
-/* atmosphere: film grain overlay — apply to a fixed, pointer-events-none layer */
+/* atmosphere: film grain overlay — apply to a relatively-positioned layer */
 @utility film-grain {
   position: relative;
-}
-@utility film-grain::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.06;
-  mix-blend-mode: overlay;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
 }
 
 @layer base {
@@ -198,7 +198,7 @@ const semantic = [
       <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
         {semantic.map((t) => (
           <div class="rounded-lg border border-border overflow-hidden">
-            <div class={`h-16 bg-${t}`}></div>
+            <div class="h-16" style={`background-color: var(--color-${t})`}></div>
             <div class="p-2 text-xs text-ink-soft">--color-{t}</div>
           </div>
         ))}
@@ -210,7 +210,7 @@ const semantic = [
       <div class="flex flex-wrap gap-2">
         {dusk.map((n) => (
           <div class="w-20">
-            <div class={`h-14 rounded bg-dusk-${n} border border-border`}></div>
+            <div class="h-14 rounded border border-border" style={`background-color: var(--color-dusk-${n})`}></div>
             <div class="text-[10px] text-muted mt-1">{n}</div>
           </div>
         ))}
@@ -222,7 +222,7 @@ const semantic = [
       <div class="flex flex-wrap gap-2">
         {gold.map((n) => (
           <div class="w-20">
-            <div class={`h-14 rounded bg-gold-${n} border border-border`}></div>
+            <div class="h-14 rounded border border-border" style={`background-color: var(--color-gold-${n})`}></div>
             <div class="text-[10px] text-muted mt-1">{n}</div>
           </div>
         ))}
