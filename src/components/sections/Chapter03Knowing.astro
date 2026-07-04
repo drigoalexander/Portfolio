@@ -12,7 +12,7 @@ const c = chapters[3]!;
   aria-labelledby={`${c.id}-title`}
   class="relative flex min-h-svh items-center justify-end py-[28vh] pr-10 pl-6 md:pr-[9vw]"
 >
-  <div class="relative z-10 flex max-w-md flex-col items-end space-y-6 text-right">
+  <div class="copy-scrim relative z-10 flex max-w-md flex-col items-end space-y-6 text-right" style={`--scrim: ${c.ground}`}>
     <h2
       id={`${c.id}-title`}
       data-anim="split"

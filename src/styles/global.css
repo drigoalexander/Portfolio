@@ -81,6 +81,21 @@
   }
 }
 
+/* mobile legibility: a soft pool of the chapter's own ground color behind
+   copy that has to sit over the tree on narrow viewports — set `--scrim`
+   to the chapter's ground on the copy block */
+@utility copy-scrim {
+  @media (max-width: 820px) {
+    padding: 1.5rem;
+    margin: -1.5rem;
+    background: radial-gradient(
+      110% 110% at 50% 50%,
+      color-mix(in srgb, var(--scrim, var(--color-bg)) 85%, transparent) 55%,
+      transparent 100%
+    );
+  }
+}
+
 /* atmosphere: cinematic edge falloff — apply to an absolute overlay layer */
 @utility vignette {
   background-image: radial-gradient(
