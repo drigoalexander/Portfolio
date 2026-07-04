@@ -61,10 +61,10 @@
   --color-apple-light: #d0663f;
   --color-apple-deep: #7e3322;
 
-  /* ---- typography: Ubuntu display + Geist Pixel for the tracked small caps ---- */
-  --font-display: "Ubuntu", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-sans: "Geist Pixel", ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, sans-serif;
+  /* ---- typography: Geist Pixel headlines, Ubuntu for running copy ---- */
+  --font-display: "Geist Pixel", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+  --font-sans: "Ubuntu", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 /* atmosphere: film grain overlay — apply to a relatively-positioned layer */
