@@ -187,12 +187,17 @@ export function useTreeGrowth(svg: Target): AnimHandle {
       );
     }
 
-    for (const group of Array.from(root.querySelectorAll("[data-tree-sway]"))) {
-      gsap.fromTo(
-        group,
-        { rotation: -0.9, transformOrigin: "50% 88%" },
-        { rotation: 0.9, duration: 7, ease: "sine.inOut", yoyo: true, repeat: -1 },
-      );
+    // the perpetual sway repaints the whole canopy every frame (SVG inner
+    // transforms aren't compositor-accelerated on iOS Safari), so touch
+    // devices keep the crown still and spend the frames on scrolling
+    if (!window.matchMedia("(pointer: coarse)").matches) {
+      for (const group of Array.from(root.querySelectorAll("[data-tree-sway]"))) {
+        gsap.fromTo(
+          group,
+          { rotation: -0.9, transformOrigin: "50% 88%" },
+          { rotation: 0.9, duration: 7, ease: "sine.inOut", yoyo: true, repeat: -1 },
+        );
+      }
     }
   });
 

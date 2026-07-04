@@ -201,8 +201,10 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
         <stop offset="0" style="stop-color: var(--scene-glow)" stop-opacity="0"></stop>
         <stop offset="1" style="stop-color: var(--scene-glow)" stop-opacity="0.22"></stop>
       </linearGradient>
-      <!-- the meadow deepens toward the viewer — no seams, just falloff -->
-      <linearGradient id="meadow-grad" x1="0" y1="0" x2="0" y2="1">
+      <!-- the meadow deepens toward the viewer — no seams, just falloff.
+           userSpaceOnUse so the falloff is pinned to the scene: below it the
+           deep tone simply continues (tall phone viewports see that far) -->
+      <linearGradient id="meadow-grad" gradientUnits="userSpaceOnUse" x1="0" y1="1058" x2="0" y2="1340">
         <stop offset="0" style="stop-color: var(--scene-meadow)" stop-opacity="0.28"></stop>
         <stop offset="0.45" style="stop-color: var(--scene-meadow)" stop-opacity="0.42"></stop>
         <stop offset="1" style="stop-color: var(--scene-meadow-deep)" stop-opacity="0.6"></stop>
@@ -281,7 +283,7 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
     <g>
       <path
         class="wash meadow"
-        d="M -700 1062 C 100 1052, 342 1069, 500 1061 C 662 1053, 798 1067, 1520 1056 L 1520 1330 L -700 1330 Z"
+        d="M -700 1062 C 100 1052, 342 1069, 500 1061 C 662 1053, 798 1067, 1520 1056 L 1520 2400 L -700 2400 Z"
       />
       <path stroke-width="2" d="M 80 1063 C 220 1054, 342 1069, 500 1061 C 662 1053, 798 1067, 920 1057" />
       <path stroke-width="1.5" stroke-opacity="0.5" d="M -560 1060 C -420 1054, -260 1064, -80 1058" />
@@ -444,12 +446,20 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
     color: var(--color-tree);
     transition: color 1.2s ease;
   }
-  /* depth of field: far and mid planes blur; the tree stays crisp */
+  /* depth of field: far and mid planes blur; the tree stays crisp.
+     On touch devices the blur re-rasterizes on every camera frame (iOS
+     Safari) and janks the scroll — the planes go crisp there instead. */
   .layer-far {
     filter: blur(3px);
   }
   .layer-mid {
     filter: blur(1.1px);
+  }
+  @media (pointer: coarse), (max-width: 820px) {
+    .layer-far,
+    .layer-mid {
+      filter: none;
+    }
   }
 
   /* watercolor washes: translucent pigment with a pooled same-color edge;
