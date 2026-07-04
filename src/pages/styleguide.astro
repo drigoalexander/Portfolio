@@ -1,5 +1,6 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import MagneticButton from "../components/islands/MagneticButton.vue";
 
 const dusk = [950, 900, 800, 700, 600, 500, 400, 300, 200, 100, 50];
 const gold = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
@@ -56,6 +57,23 @@ const semantic = [
       <h2 class="text-2xl text-accent">Atmosphere</h2>
       <div class="bg-sun film-grain h-64 rounded-2xl grid place-items-center">
         <span class="text-dusk-950 font-display text-3xl">golden hour</span>
+      </div>
+    </section>
+
+    <section class="space-y-8">
+      <h2 class="text-2xl text-accent">Motion harness</h2>
+
+      <p data-anim="reveal" class="text-ink-soft max-w-prose">
+        This paragraph reveals on scroll via the declarative [data-anim] layer —
+        zero per-component JS.
+      </p>
+
+      <h3 data-anim="split" class="text-4xl text-ink max-w-3xl">
+        Split-text headings sweep in word by word as they enter the viewport.
+      </h3>
+
+      <div class="py-8">
+        <MagneticButton client:visible label="Magnetic button" />
       </div>
     </section>
   </main>

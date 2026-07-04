@@ -18,5 +18,9 @@ const { title = "Drigo" } = Astro.props;
   </head>
   <body>
     <slot />
+    <script>
+      import { initGsap } from "../lib/gsap";
+      initGsap();
+    </script>
   </body>
 </html>
