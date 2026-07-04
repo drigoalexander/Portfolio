@@ -853,7 +853,7 @@ export function useMagnetic(
   const { strength = 0.4 } = opts;
 
   if (prefersReducedMotion()) {
-    return { ctx: gsap.context(() => {}), kill: () => {} };
+    return toHandle(gsap.context(() => {}));
   }
 
   const xTo = gsap.quickTo(el, "x", { duration: 0.5, ease: EASES.glide });
@@ -989,15 +989,18 @@ import { prefersReducedMotion } from "../reduced-motion";
 import { EASES } from "../eases";
 import { toHandle, type AnimHandle, type Target } from "./types";
 
+/** The layout snapshot produced by Flip.getState(). */
+export type FlipState = ReturnType<typeof Flip.getState>;
+
 /** Capture layout state BEFORE a DOM/class change. */
-export function captureFlip(target: Target): Flip.FlipState {
+export function captureFlip(target: Target): FlipState {
   registerGsap();
   return Flip.getState(target as gsap.DOMTarget);
 }
 
 /** Animate FROM a captured state to the current layout. Call after the change. */
 export function useFlip(
-  state: Flip.FlipState,
+  state: FlipState,
   opts: { duration?: number } = {},
 ): AnimHandle {
   const gsap = registerGsap();
