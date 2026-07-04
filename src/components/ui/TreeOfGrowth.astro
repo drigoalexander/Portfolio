@@ -1,0 +1,532 @@
+---
+/**
+ * The Tree of Growth — a hand-drawn apple tree growing through a painted,
+ * cinematic landscape. The SCENE is watercolor: gradient-shaded masses
+ * (clouds lit above / shadowed below, the hill warm at its crest, the
+ * meadow deepening toward the viewer) that ship painted and never animate.
+ * The TREE stays pure ink — hand-drawn strokes that draw themselves, leaves
+ * and apples that pop — scrubbed to each chapter by `useTreeGrowth`, while
+ * a scroll camera (animated viewBox) starts tight on the seed and pulls
+ * back to the full wide shot.
+ *
+ * Tree/scenery strokes inherit `currentColor` (--color-tree flips gold →
+ * ink when the ground turns to sand); scene pigments live in `--scene-*`
+ * vars (global.css) and flip with it — gold-tinted silhouettes on the
+ * night act, full color on sand. Foliage and fruit keep their own tokens:
+ * the greens and the apple red are the page's punctuation.
+ *
+ * All placement is deterministic pseudo-random (golden-angle spread,
+ * index-seeded jitter), so every build renders the same painting.
+ */
+
+/** deterministic -1..1 jitter, stable per (index, seed) */
+const jit = (i: number, seed: number) => ((((i * 73 + seed * 41) % 89) + 89) % 89) / 44.5 - 1;
+
+/** a lobed watercolor blot: an ellipse warped by seeded jitter, smoothed */
+function blob(
+  cx: number,
+  cy: number,
+  rx: number,
+  ry: number,
+  lobes: number,
+  seed: number,
+  irr = 0.22,
+): string {
+  const pts = Array.from({ length: lobes }, (_, i) => {
+    const a = (i / lobes) * Math.PI * 2;
+    const k = 1 + jit(i, seed) * irr;
+    return [cx + Math.cos(a) * rx * k, cy + Math.sin(a) * ry * k] as const;
+  });
+  const mid = (a: readonly [number, number], b: readonly [number, number]) =>
+    `${((a[0] + b[0]) / 2).toFixed(1)} ${((a[1] + b[1]) / 2).toFixed(1)}`;
+  let d = `M ${mid(pts[lobes - 1]!, pts[0]!)}`;
+  pts.forEach((p, i) => {
+    d += ` Q ${p[0].toFixed(1)} ${p[1].toFixed(1)} ${mid(p, pts[(i + 1) % lobes]!)}`;
+  });
+  return d + " Z";
+}
+
+const LEAF_D = [
+  "M 0 0 C 5 -7, 14 -9, 20 -3 C 15 4, 6 5, 0 0 Z",
+  "M 0 0 C 4 -8, 13 -11, 19 -5 C 16 3, 5 6, 0 0 Z",
+  "M 0 0 C 6 -5, 15 -7, 21 -2 C 14 5, 5 4, 0 0 Z",
+];
+
+interface Sprig {
+  x: number;
+  y: number;
+  rot: number;
+  scale: number;
+  variant: number;
+}
+
+/** leaves fanned around a cluster center — golden-angle spread, seeded jitter */
+function cluster(cx: number, cy: number, count: number, seed: number): Sprig[] {
+  return Array.from({ length: count }, (_, i) => {
+    const angle = ((i * 137.5 + seed * 61) * Math.PI) / 180;
+    const radius = 8 + ((i * 7 + seed * 5) % 26);
+    return {
+      x: +(cx + Math.cos(angle) * radius * 1.2).toFixed(1),
+      y: +(cy + Math.sin(angle) * radius * 0.85).toFixed(1),
+      rot: Math.round(((angle * 180) / Math.PI + ((i * 53 + seed * 29) % 44) - 22) % 360),
+      scale: +(1.1 + ((i * 31 + seed * 17) % 60) / 80).toFixed(2),
+      variant: (i + seed) % 3,
+    };
+  });
+}
+
+/** the crown: cluster centers across the canopy, denser toward the middle,
+ *  with runs of foliage following every branch so no limb is left bare */
+const CANOPY_CLUSTERS: Array<[number, number, number]> = [
+  [297, 390, 14],
+  [496, 282, 15],
+  [695, 356, 14],
+  [247, 498, 11],
+  [458, 310, 14],
+  [683, 420, 12],
+  [380, 340, 14],
+  [560, 300, 14],
+  [620, 390, 12],
+  [340, 430, 12],
+  [540, 250, 14],
+  [430, 380, 12],
+  [590, 340, 12],
+  [500, 420, 11],
+  // low-left bough
+  [418, 565, 9],
+  [350, 545, 9],
+  [296, 512, 8],
+  // right bough and the leap branch it shades into
+  [655, 432, 9],
+  [706, 516, 9],
+  [748, 478, 9],
+  [792, 452, 8],
+  // fillers between the main masses
+  [536, 352, 10],
+  [470, 350, 10],
+  [410, 300, 10],
+  [580, 250, 10],
+  [620, 300, 10],
+  [350, 380, 10],
+  [450, 430, 10],
+  [530, 450, 10],
+];
+const canopyLeaves = CANOPY_CLUSTERS.flatMap(([x, y, n], i) => cluster(x, y, n, i));
+
+/** young leaves on the sapling's branchlets (chapter 02) */
+const saplingLeaves = [
+  ...cluster(575, 872, 3, 21),
+  ...cluster(422, 826, 3, 22),
+  ...cluster(560, 780, 3, 23),
+];
+
+/** the fruit — a lot of apples, every one hung from a branch: each point
+ *  sits ~16 units under the branch curve so the stem touches the wood */
+const APPLES: Array<[number, number, number]> = [
+  [410, 502, 1.1],
+  [345, 448, 0.95],
+  [300, 531, 0.9],
+  [430, 594, 0.85],
+  [486, 416, 1.05],
+  [492, 346, 1.2],
+  [460, 334, 0.85],
+  [580, 431, 1],
+  [600, 481, 0.95],
+  [680, 406, 1.15],
+  [750, 493, 1],
+  [795, 467, 0.9],
+];
+
+/** painted cumulus: lobes lit above, one warm shade lobe beneath */
+const CLOUDS: Array<{ d: string; fo: number; shade?: boolean }> = [
+  { d: blob(60, 206, 54, 18, 8, 3), fo: 0.26 },
+  { d: blob(128, 192, 72, 24, 8, 4), fo: 0.3 },
+  { d: blob(200, 204, 58, 18, 8, 5), fo: 0.26 },
+  { d: blob(130, 216, 88, 10, 8, 6), fo: 0.22, shade: true },
+  { d: blob(668, 150, 60, 20, 8, 7), fo: 0.26 },
+  { d: blob(752, 128, 84, 26, 8, 8), fo: 0.3 },
+  { d: blob(838, 148, 64, 19, 8, 9), fo: 0.26 },
+  { d: blob(756, 160, 96, 11, 8, 10), fo: 0.22, shade: true },
+  { d: blob(440, 325, 52, 12, 8, 11), fo: 0.18 },
+  { d: blob(-280, 330, 100, 20, 8, 12), fo: 0.2 },
+  { d: blob(1140, 270, 110, 22, 8, 13), fo: 0.22 },
+];
+
+/** grass grows in little bunches, denser and taller toward the viewer */
+function bladeClumps(
+  x0: number,
+  x1: number,
+  step: number,
+  seed: number,
+  minT: number,
+  maxT: number,
+  per: number,
+): Array<{ x: number; lean: number; tall: number }> {
+  const out: Array<{ x: number; lean: number; tall: number }> = [];
+  let x = x0;
+  for (let a = 0; x < x1; a++) {
+    const n = 1 + ((a + seed) % per);
+    for (let k = 0; k < n; k++) {
+      out.push({
+        x: Math.round(x + k * 5 + jit(a * 7 + k, seed + 4) * 3),
+        lean: +(jit(a * 3 + k, seed + 1) * 2).toFixed(1) || 1,
+        tall: Math.round(minT + ((jit(a * 5 + k, seed + 2) + 1) / 2) * (maxT - minT)),
+      });
+    }
+    x += step * (0.7 + Math.abs(jit(a, seed)) * 0.6);
+  }
+  return out;
+}
+const farBlades = bladeClumps(-640, 1460, 16, 51, 6, 10, 3);
+const midRowBlades = bladeClumps(-628, 1460, 20, 61, 8, 14, 4);
+const nearRowBlades = bladeClumps(-616, 1460, 24, 71, 11, 18, 4);
+const grassD = (x: number, lean: number, tall: number, base = 1058) =>
+  `M ${x} ${base + ((((x * 7) % 5) + 5) % 5)} c 0 ${-Math.round(tall * 0.4)} ${lean} ${-Math.round(tall * 0.75)} ${(lean * 2.2).toFixed(1)} ${-tall}`;
+---
+
+<div class="tree-art pointer-events-none fixed inset-0 z-0" aria-hidden="true">
+  <svg
+    id="tree-of-growth"
+    class="h-full w-full"
+    viewBox="-80 40 920 1240"
+    preserveAspectRatio="xMidYMid meet"
+    fill="none"
+    stroke="currentColor"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <defs>
+      <!-- warm light rising off the horizon -->
+      <linearGradient id="horizon-glow" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color: var(--scene-glow)" stop-opacity="0"></stop>
+        <stop offset="1" style="stop-color: var(--scene-glow)" stop-opacity="0.22"></stop>
+      </linearGradient>
+      <!-- the meadow deepens toward the viewer — no seams, just falloff -->
+      <linearGradient id="meadow-grad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" style="stop-color: var(--scene-meadow)" stop-opacity="0.28"></stop>
+        <stop offset="0.45" style="stop-color: var(--scene-meadow)" stop-opacity="0.42"></stop>
+        <stop offset="1" style="stop-color: var(--scene-meadow-deep)" stop-opacity="0.6"></stop>
+      </linearGradient>
+      <!-- fruit rounded by the low sun: lit upper-right, deep at the rim -->
+      <radialGradient id="apple-grad" cx="0.62" cy="0.32" r="0.9">
+        <stop offset="0" style="stop-color: var(--color-apple-light)"></stop>
+        <stop offset="0.55" style="stop-color: var(--color-apple)"></stop>
+        <stop offset="1" style="stop-color: var(--color-apple-deep)"></stop>
+      </radialGradient>
+      <!-- the cottage window, always lit -->
+      <radialGradient id="window-glow">
+        <stop offset="0" style="stop-color: var(--scene-window)" stop-opacity="0.6"></stop>
+        <stop offset="1" style="stop-color: var(--scene-window)" stop-opacity="0"></stop>
+      </radialGradient>
+    </defs>
+
+    <!-- ══ THE SCENE — still, fully painted, never animated. Built in depth
+         planes: far (blurred, hazy, slow parallax) → mid → focal. ══ -->
+
+    <!-- FAR PLANE: painted clouds, a hazy ridge, the sun's backlight, birds -->
+    <g class="layer-far" data-tree-parallax="26">
+      {CLOUDS.map((c) => (
+        <path
+          class={`wash ${c.shade ? "cloud-shade" : "cloud"}`}
+          fill-opacity={c.fo}
+          stroke-opacity={c.shade ? 0 : 0.14}
+          d={c.d}
+        />
+      ))}
+      <path
+        class="wash hill-far"
+        fill-opacity="0.35"
+        stroke-opacity="0.15"
+        d="M -700 1046 C -520 1020, -300 1042, -80 1032 C 140 1046, 320 1024, 520 1034 C 700 1042, 900 1022, 1100 1032 C 1240 1038, 1380 1028, 1520 1032 L 1520 1130 L -700 1130 Z"
+      />
+      <path
+        fill="currentColor"
+        fill-opacity="0.13"
+        stroke="none"
+        d="M 84 1044 l 4 -22 c -13 -3 -19 -14 -14 -24 c 5 -11 21 -14 29 -5 c 8 8 5 22 -6 27 l 3 24 z"
+      />
+      <rect x="-700" y="915" width="2260" height="145" fill="url(#horizon-glow)" stroke="none"
+      ></rect>
+      <path stroke-width="1.25" stroke-opacity="0.7" d="M 150 242 c 6 -7 13 -7 18 0 c 5 -7 12 -7 17 0" />
+      <path stroke-width="1.25" stroke-opacity="0.55" d="M 884 186 c 5 -6 11 -6 15 0 c 4 -6 10 -6 14 0" />
+      <path stroke-width="1" stroke-opacity="0.6" d="M 448 122 c 4 -5 9 -5 13 0 c 4 -5 9 -5 12 0" />
+    </g>
+
+    <!-- MID PLANE: the stone wall, haze, far grass -->
+    <g class="layer-mid" data-tree-parallax="12">
+      <!-- drifting haze -->
+      <path stroke-width="1.25" stroke-opacity="0.3" d="M 396 792 c 28 -8 66 -8 96 0" />
+      <path stroke-width="1.25" stroke-opacity="0.25" d="M 434 774 c 18 -5 44 -5 64 0" />
+      <path stroke-width="1" stroke-opacity="0.55" d="M 330 798 c 4 -5 9 -5 13 0 c 4 -5 9 -5 12 0" />
+      <path stroke-width="1" stroke-opacity="0.45" d="M 386 812 c 3 -4 7 -4 10 0 c 3 -4 7 -4 10 0" />
+      <!-- the stone wall at the hill's foot -->
+      <path stroke-width="1.75" d="M 640 1030 C 685 1026, 730 1029, 778 1026" />
+      <path stroke-width="1.75" d="M 641 1058 l -1 -28" />
+      <path stroke-width="1.75" d="M 777 1056 l 1 -30" />
+      <path stroke-width="1.25" d="M 672 1032 l 1 24" />
+      <path stroke-width="1.25" d="M 706 1030 l 1 25" />
+      <path stroke-width="1.25" d="M 742 1030 l 0 24" />
+      <path stroke-width="1" d="M 655 1044 l 18 -1" />
+      <path stroke-width="1" d="M 715 1042 l 20 -1" />
+      <path stroke-width="1" d="M 690 1046 l 14 0" />
+      <!-- far grass row -->
+      {farBlades.map((b) => (
+        <path class="grass-dim" stroke-width="1.25" stroke-opacity="0.6" d={grassD(b.x, b.lean, b.tall)} />
+      ))}
+    </g>
+
+    <!-- FOCAL PLANE: the meadow, the cottage, near grass -->
+    <g>
+      <path
+        class="wash meadow"
+        d="M -700 1062 C 100 1052, 342 1069, 500 1061 C 662 1053, 798 1067, 1520 1056 L 1520 1330 L -700 1330 Z"
+      />
+      <path stroke-width="2" d="M 80 1063 C 220 1054, 342 1069, 500 1061 C 662 1053, 798 1067, 920 1057" />
+      <path stroke-width="1.5" stroke-opacity="0.5" d="M -560 1060 C -420 1054, -260 1064, -80 1058" />
+      <path stroke-width="1.5" stroke-opacity="0.5" d="M 920 1057 C 1080 1063, 1240 1052, 1400 1058" />
+
+      <!-- the cottage: shadow, warm washed walls, brick roof, lit window -->
+      <g transform="translate(275 1058) scale(1.28) translate(-275 -1058)">
+        <path class="wash shadow-wash" fill-opacity="0.18" d={blob(212, 1064, 92, 7, 9, 57)} />
+        <path class="wash house" fill-opacity="0.6" stroke-opacity="0.3" d="M 221 1058 L 221 996 L 275 955 L 332 994 L 332 1058 Z" />
+        <path class="roof" stroke-width="5.5" stroke-opacity="0.9" d="M 214 1000 L 275 950 L 336 996" />
+        <path class="roof-fill" fill-opacity="0.85" d="M 296 968 l -1 -20 l 14 -1 l 1 14 Z" />
+        <circle cx="295.5" cy="1031" r="13" fill="url(#window-glow)" stroke="none"></circle>
+        <path stroke-width="2" d="M 228 1060 L 230 992" />
+        <path stroke-width="2" d="M 322 1060 L 320 992" />
+        <path stroke-width="2" d="M 218 994 L 275 952 L 334 992" />
+        <path stroke-width="1.5" d="M 296 968 l -1 -20 l 14 -1 l 1 14" />
+        <path stroke-width="1.25" stroke-opacity="0.5" d="M 305 938 c 6 -10 -4 -16 4 -26" />
+        <path stroke-width="1.25" stroke-opacity="0.35" d="M 310 908 c 6 -8 -2 -14 4 -22" />
+        <path class="roof-fill" fill-opacity="0.6" d="M 262 1060 l 0 -26 c 0 -7 13 -7 13 0 l 0 26 Z" />
+        <path stroke-width="1.5" d="M 262 1060 l 0 -26 c 0 -7 13 -7 13 0 l 0 26" />
+        <path class="window" fill-opacity="0.8" stroke-width="1.5" d="M 288 1024 h 15 v 15 h -15 z" />
+        <path stroke-width="1" d="M 295 1024 l 0 15" />
+        <path stroke-width="1" d="M 288 1031 l 15 0" />
+      </g>
+
+      <!-- the near field: two rows of bunched green blades -->
+      {midRowBlades.map((b) => (
+        <path class="grass" stroke-width="1.5" stroke-opacity="0.7" d={grassD(b.x, b.lean, b.tall)} />
+      ))}
+      {nearRowBlades.map((b) => (
+        <path class="grass" stroke-width="2" d={grassD(b.x, b.lean, b.tall, 1064)} />
+      ))}
+    </g>
+
+    <!-- ══ THE TREE — the only thing that grows, and it stays pure ink ══ -->
+
+    <!-- 00 · the seed, drawn on arrival, seated on the ground -->
+    <g data-tree-stage-onload data-tree-cam="180 690 640 450">
+      <path stroke-width="2" d="M 493 1059 C 487 1043, 502 1032, 511 1043 C 518 1053, 506 1064, 493 1059" />
+      <path stroke-width="1.25" d="M 499 1053 l 6 -5" />
+    </g>
+
+    <!-- 01 · origin — a sprout, the first two green leaves -->
+    <g data-tree-stage="origin" data-tree-cam="310 810 380 310">
+      <path stroke-width="3" d="M 502 1058 C 505 1020, 494 990, 497 953" />
+      <g transform="translate(497 953) rotate(205)">
+        <path class="leaf leaf-2" data-tree-pop d={LEAF_D[1]}></path>
+      </g>
+      <g transform="translate(499 948) rotate(-28)">
+        <path class="leaf leaf-1" data-tree-pop d={LEAF_D[0]}></path>
+      </g>
+    </g>
+
+    <!-- 02 · craft — the sapling: the stem carries on, disciplined branchlets -->
+    <g data-tree-stage="craft" data-tree-cam="380 670 460 450">
+      <path stroke-width="3.5" d="M 497 953 C 500 900, 492 850, 499 790" />
+      <path stroke-width="2" d="M 499 908 C 521 899, 543 893, 561 878" />
+      <path stroke-width="2" d="M 497 862 C 474 853, 452 851, 433 834" />
+      <path stroke-width="2" d="M 499 822 C 519 813, 537 800, 549 786" />
+      {
+        saplingLeaves.map((l) => (
+          <g transform={`translate(${l.x} ${l.y}) rotate(${l.rot}) scale(${l.scale * 0.7})`}>
+            <path class={`leaf leaf-${l.variant + 1}`} data-tree-pop d={LEAF_D[l.variant]} />
+          </g>
+        ))
+      }
+    </g>
+
+    <!-- 03 · knowing — the turn inward: roots, and the trunk thickens -->
+    <g data-tree-stage="knowing" data-tree-cam="250 790 500 460">
+      <path class="wash shadow-wash" data-tree-wash="bloom" fill-opacity="0.14" d={blob(500, 1080, 66, 9, 9, 58)} />
+      <path stroke-width="2.5" d="M 496 1058 C 470 1083, 432 1097, 398 1118 C 379 1130, 360 1132, 343 1147" />
+      <path stroke-width="1.5" d="M 431 1101 C 421 1117, 408 1125, 392 1129" />
+      <path stroke-width="2.5" d="M 501 1060 C 504 1093, 493 1121, 500 1152 C 504 1170, 496 1185, 485 1197" />
+      <path stroke-width="2.5" d="M 505 1058 C 531 1079, 562 1089, 591 1108 C 611 1122, 632 1124, 645 1141" />
+      <path stroke-width="1.5" d="M 561 1091 C 573 1105, 589 1111, 605 1110" />
+      <path stroke-width="1.25" d="M 420 1141 l -8 10" />
+      <path stroke-width="1.25" d="M 521 1171 l 6 12" />
+      <path stroke-width="1.25" d="M 611 1128 l 10 8" />
+      <path stroke-width="1.75" d="M 510 1052 C 513 1000, 504 945, 509 885 C 512 845, 506 815, 509 792" />
+    </g>
+
+    <!-- 04 · the leap — the trunk surges; one bold branch reaches out -->
+    <g data-tree-stage="leap" data-tree-cam="130 370 580 620">
+      <path stroke-width="4" d="M 499 790 C 506 715, 486 655, 497 585 C 502 545, 492 525, 495 502" />
+      <path stroke-width="1.75" d="M 509 786 C 515 718, 498 652, 506 582" />
+      <path stroke-width="3" d="M 497 640 C 560 611, 641 581, 701 520 C 741 480, 777 461, 807 448" />
+      <path stroke-width="1.5" d="M 701 520 C 717 501, 719 484, 713 468" />
+      <g transform="translate(807 448) rotate(-32)">
+        <path class="leaf leaf-1" data-tree-pop d={LEAF_D[0]}></path>
+      </g>
+      <g transform="translate(795 452) rotate(-80)">
+        <path class="leaf leaf-3" data-tree-pop d={LEAF_D[2]}></path>
+      </g>
+    </g>
+
+    <!-- the finished tree's shadow, thrown left by the low sun -->
+    <g data-tree-stage="now">
+      <path class="wash shadow-wash" data-tree-wash="bloom" fill-opacity="0.16" d={blob(370, 1073, 205, 11, 11, 36)} />
+    </g>
+
+    <!-- gentle perpetual sway over the crown -->
+    <g data-tree-sway>
+      <!-- 05 · now — the canopy fans wide and fills with green -->
+      <g data-tree-stage="now" data-tree-cam="110 130 780 700">
+        <path stroke-width="2.5" d="M 496 560 C 461 521, 421 491, 381 470 C 341 450, 311 421, 297 390" />
+        <path stroke-width="2.75" d="M 496 540 C 500 481, 480 421, 492 370 C 498 340, 489 311, 496 282" />
+        <path stroke-width="2.5" d="M 497 550 C 541 501, 591 471, 631 440 C 665 414, 687 384, 695 356" />
+        <path stroke-width="2.25" d="M 495 600 C 441 581, 391 571, 341 540 C 301 516, 269 501, 247 498" />
+        <path stroke-width="1.75" d="M 496 470 C 462 442, 432 424, 402 388" />
+        <path stroke-width="1.75" d="M 497 480 C 534 452, 568 437, 598 406" />
+        <path stroke-width="1.5" d="M 381 470 C 367 448, 363 428, 369 408" />
+        <path stroke-width="1.5" d="M 492 370 C 470 352, 458 332, 458 310" />
+        <path stroke-width="1.5" d="M 631 440 C 647 424, 665 418, 683 420" />
+        <path stroke-width="1.5" d="M 341 540 C 331 520, 333 502, 343 486" />
+        {
+          canopyLeaves.map((l) => (
+            <g transform={`translate(${l.x} ${l.y}) rotate(${l.rot}) scale(${l.scale})`}>
+              <path class={`leaf leaf-${l.variant + 1}`} data-tree-pop d={LEAF_D[l.variant]} />
+            </g>
+          ))
+        }
+        <path stroke-width="1.5" d="M 762 262 c 8 -9 16 -9 22 0 c 6 -9 14 -9 20 0" />
+        <path stroke-width="1.25" d="M 826 306 c 6 -7 12 -7 17 0 c 5 -7 11 -7 16 0" />
+      </g>
+
+      <!-- 06 · ethos — the fruit arrives: a lot of apples, all still hanging -->
+      <g data-tree-stage="ethos" data-tree-cam="310 170 680 620">
+        {
+          APPLES.map(([x, y, s]) => (
+            <g transform={`translate(${x} ${y}) scale(${s})`}>
+              <g data-tree-pop>
+                <path stroke-width="1.5" d="M 0 -14 C -1 -10, -1 -7, 0 -4" />
+                <circle class="apple" stroke-width="1.25" r="9" cy="4" />
+                <path class="leaf leaf-2" d="M 0 -10 C 4 -14, 10 -16, 13 -11 C 10 -7, 4 -7, 0 -10 Z" />
+              </g>
+            </g>
+          ))
+        }
+      </g>
+    </g>
+
+    <!-- 07 · epilogue — the camera pulls all the way back; nothing has
+         fallen yet. one apple leans toward the ground, but its dotted path
+         stops mid-air: the journey is only beginning -->
+    <g data-tree-stage="contact" data-tree-cam="-80 40 920 1240">
+      <path
+        data-tree-pop
+        stroke-width="2"
+        stroke-dasharray="2 11"
+        d="M 724 398 C 734 428, 737 456, 730 482"
+      />
+    </g>
+
+  </svg>
+</div>
+
+<style>
+  .tree-art {
+    color: var(--color-tree);
+    transition: color 1.2s ease;
+  }
+  /* depth of field: far and mid planes blur; the tree stays crisp */
+  .layer-far {
+    filter: blur(3px);
+  }
+  .layer-mid {
+    filter: blur(1.1px);
+  }
+
+  /* watercolor washes: translucent pigment with a pooled same-color edge;
+     fills cross-fade when the ground flips act */
+  .wash {
+    stroke-width: 2;
+    transition:
+      fill 1.2s ease,
+      stroke 1.2s ease;
+  }
+  stop {
+    transition: stop-color 1.2s ease;
+  }
+  .cloud {
+    fill: var(--scene-cloud);
+    stroke: var(--scene-cloud);
+  }
+  .cloud-shade {
+    fill: var(--scene-cloud-shade);
+    stroke: none;
+  }
+  .hill-far {
+    fill: var(--scene-hill-far);
+    stroke: var(--scene-hill-far);
+  }
+  .meadow {
+    fill: url(#meadow-grad);
+    stroke: none;
+  }
+  .grass-dim {
+    stroke: var(--scene-grass-dim);
+    transition: stroke 1.2s ease;
+  }
+  .grass {
+    stroke: var(--scene-grass);
+    transition: stroke 1.2s ease;
+  }
+  .house {
+    fill: var(--scene-house);
+    stroke: var(--scene-house);
+  }
+  .roof {
+    stroke: var(--scene-roof);
+    transition: stroke 1.2s ease;
+  }
+  .roof-fill {
+    fill: var(--scene-roof);
+    stroke: none;
+    transition: fill 1.2s ease;
+  }
+  .window {
+    fill: var(--scene-window);
+  }
+  .shadow-wash {
+    fill: var(--scene-shadow);
+    stroke: none;
+  }
+
+  .leaf {
+    stroke: none;
+  }
+  .leaf-1 {
+    fill: var(--color-leaf-1);
+  }
+  .leaf-2 {
+    fill: var(--color-leaf-2);
+  }
+  .leaf-3 {
+    fill: var(--color-leaf-3);
+  }
+  .apple {
+    fill: url(#apple-grad);
+    stroke: var(--color-apple-deep);
+  }
+</style>
+
+<script>
+  import { useTreeGrowth } from "../../lib/gsap";
+
+  const svg = document.getElementById("tree-of-growth");
+  if (svg) useTreeGrowth(svg);
+</script>

@@ -1,0 +1,40 @@
+---
+import { chapters } from "../../content/story";
+
+const c = chapters[5]!;
+---
+
+<!-- daylight: big type low-left, the full canopy above -->
+<section
+  id={c.id}
+  data-chapter="5"
+  aria-labelledby={`${c.id}-title`}
+  class="relative flex min-h-svh items-end py-[13vh] pr-6 pl-10 text-sand-ink md:pl-[9vw]"
+>
+  <div class="relative z-10 max-w-xl space-y-6">
+    <h2
+      id={`${c.id}-title`}
+      data-anim="split"
+      data-anim-duration="1.2"
+      class="font-display text-[clamp(2.5rem,6vw,5.5rem)] leading-[0.9] text-sand-ink uppercase"
+    >
+      {c.title}
+    </h2>
+
+    <p
+      data-anim="split"
+      data-anim-delay="0.2"
+      class="max-w-sm font-sans text-xs leading-loose tracking-[0.08em] text-sand-ink-soft uppercase md:text-sm"
+    >
+      {c.body}
+    </p>
+
+    <p
+      data-anim="reveal"
+      data-anim-start="top 96%"
+      class="font-sans text-[10px] tracking-[0.35em] text-sand-ink-soft/80 uppercase"
+    >
+      — {c.meta}
+    </p>
+  </div>
+</section>

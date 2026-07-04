@@ -1,12 +1,15 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import MagneticButton from "../components/islands/MagneticButton.vue";
+import StatCounter from "../components/islands/StatCounter.vue";
+import CinePanel from "../components/ui/CinePanel.astro";
 
 const dusk = [950, 900, 800, 700, 600, 500, 400, 300, 200, 100, 50];
 const gold = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900];
 const semantic = [
   "bg", "surface", "surface-raised", "border",
   "muted", "ink", "ink-soft", "accent", "accent-strong", "accent-deep",
+  "sand", "sand-ink", "sand-ink-soft",
 ];
 ---
 
@@ -14,7 +17,7 @@ const semantic = [
   <main class="min-h-screen bg-bg text-ink-soft px-8 py-16 space-y-16">
     <header class="space-y-2">
       <h1 class="text-5xl text-ink">Foundation Styleguide</h1>
-      <p class="text-muted">Tokens &amp; animation harness — dark-only.</p>
+      <p class="text-muted">Tokens &amp; animation harness — dark ground + sand ground.</p>
     </header>
 
     <section class="space-y-4">
@@ -55,8 +58,15 @@ const semantic = [
 
     <section class="space-y-4">
       <h2 class="text-2xl text-accent">Atmosphere</h2>
-      <div class="bg-sun film-grain h-64 rounded-2xl grid place-items-center">
-        <span class="text-dusk-950 font-display text-3xl">golden hour</span>
+      <p class="text-muted text-sm max-w-prose">
+        Cinematic panel: solid warm ground + glitch raster + film grain. The sand
+        swatch is the light-section ground with its own ink.
+      </p>
+      <div class="grid gap-4 md:grid-cols-2">
+        <CinePanel ratio="16/9" tone="warm" class="rounded-2xl" />
+        <div class="rounded-2xl bg-sand text-sand-ink grid place-items-center">
+          <span class="font-display text-3xl">sand ground</span>
+        </div>
       </div>
     </section>
 
@@ -71,6 +81,27 @@ const semantic = [
       <h3 data-anim="split" class="text-4xl text-ink max-w-3xl">
         Split-text headings sweep in word by word as they enter the viewport.
       </h3>
+
+      <h3
+        data-anim="scramble"
+        data-anim-duration="2"
+        class="text-4xl text-ink max-w-3xl uppercase"
+      >
+        SCRAMBLE RESOLVES NOISE INTO CLARITY.
+      </h3>
+
+      <CinePanel
+        ratio="21/9"
+        tone="olive"
+        class="max-w-2xl rounded-xl"
+        data-anim="clip"
+        data-anim-from="18"
+      />
+
+      <div class="flex gap-14 text-ink">
+        <StatCounter client:visible value={24} suffix="+" label="Counter demo" />
+        <StatCounter client:visible value={6} label="Years" />
+      </div>
 
       <div class="py-8">
         <MagneticButton client:visible label="Magnetic button" />

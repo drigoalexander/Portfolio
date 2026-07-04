@@ -1,0 +1,62 @@
+---
+import { chapters, site } from "../../content/story";
+
+const c = chapters[7]!;
+---
+
+<!-- the epilogue stands beside the finished tree, never behind it -->
+<footer
+  id={c.id}
+  data-chapter="7"
+  aria-labelledby={`${c.id}-title`}
+  class="relative flex min-h-svh items-center py-[16vh] pr-6 pl-10 text-sand-ink md:pl-[8vw]"
+>
+  <div class="relative z-10 max-w-md space-y-7">
+    <h2
+      id={`${c.id}-title`}
+      data-anim="split"
+      data-anim-duration="1.4"
+      class="font-display text-[clamp(2.25rem,4.5vw,4rem)] leading-[0.92] text-sand-ink uppercase"
+    >
+      {c.title}
+    </h2>
+
+    <p
+      data-anim="split"
+      data-anim-delay="0.25"
+      class="max-w-sm font-sans text-xs leading-loose tracking-widest text-sand-ink-soft uppercase md:text-sm"
+    >
+      {c.body}
+    </p>
+
+    <a
+      href={`mailto:${site.email}`}
+      data-anim="reveal"
+      data-anim-delay="0.4"
+      class="inline-block font-display text-2xl text-sand-ink italic underline decoration-sand-ink/30 underline-offset-8 transition-colors hover:decoration-sand-ink focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sand-ink md:text-3xl"
+    >
+      {site.email}
+    </a>
+
+    <nav aria-label="Social links">
+      <ul class="flex items-center gap-8">
+        {
+          site.socials.map((s) => (
+            <li>
+              <a
+                href={s.href}
+                class="font-sans text-[10px] tracking-[0.3em] text-sand-ink-soft uppercase transition-colors hover:text-sand-ink focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-sand-ink"
+              >
+                {s.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <p class="pt-4 font-sans text-[9px] tracking-[0.35em] text-sand-ink-soft/70 uppercase">
+      © 2026 {site.name} — {c.meta}
+    </p>
+  </div>
+</footer>

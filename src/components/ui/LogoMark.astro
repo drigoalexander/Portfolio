@@ -1,0 +1,23 @@
+---
+/**
+ * The AX mark as an inline SVG — fills with `currentColor`, so it takes
+ * whatever ink its context sets (topbar gold on the night act, warm ink
+ * on sand). Decorative: parents provide the accessible name.
+ */
+import { LOGO_FULL, LOGO_VIEWBOX } from "../../assets/logo/mark";
+
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<svg
+  class={className}
+  viewBox={LOGO_VIEWBOX}
+  fill="none"
+  aria-hidden="true"
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <path fill="currentColor" d={LOGO_FULL}></path>
+</svg>

@@ -1,0 +1,40 @@
+---
+import { chapters } from "../../content/story";
+
+const c = chapters[1]!;
+---
+
+<!-- the text leads; the sprout answers in the right of frame -->
+<section
+  id={c.id}
+  data-chapter="1"
+  aria-labelledby={`${c.id}-title`}
+  class="relative flex min-h-svh items-center py-[22vh] pr-6 pl-10 md:pl-[9vw]"
+>
+  <div class="relative z-10 max-w-md space-y-6">
+    <h2
+      id={`${c.id}-title`}
+      data-anim="split"
+      data-anim-duration="1.2"
+      class="font-display text-[clamp(2rem,4.2vw,3.75rem)] leading-[0.95] text-ink uppercase"
+    >
+      {c.title}
+    </h2>
+
+    <p
+      data-anim="split"
+      data-anim-delay="0.2"
+      class="max-w-xs font-sans text-xs leading-loose tracking-[0.08em] text-ink-soft/85 uppercase md:text-sm"
+    >
+      {c.body}
+    </p>
+
+    <p
+      data-anim="reveal"
+      data-anim-start="top 96%"
+      class="font-sans text-[10px] tracking-[0.35em] text-muted uppercase"
+    >
+      — {c.meta}
+    </p>
+  </div>
+</section>

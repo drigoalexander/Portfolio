@@ -8,6 +8,7 @@ import { InertiaPlugin } from "gsap/InertiaPlugin";
 import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
 import { MorphSVGPlugin } from "gsap/MorphSVGPlugin";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
 import { registerEases, EASES } from "./eases";
 
 let registered = false;
@@ -29,6 +30,7 @@ export function registerGsap(): typeof gsap {
     DrawSVGPlugin,
     MorphSVGPlugin,
     ScrollToPlugin,
+    ScrambleTextPlugin,
   );
   registerEases();
 

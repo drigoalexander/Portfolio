@@ -1,13 +1,23 @@
 @import "tailwindcss";
 
+/* Geist Pixel (Square) — from Vercel's `geist` package v1.7.2 (OFL),
+   self-hosted in /public/fonts; single weight, browsers synthesize bold */
+@font-face {
+  font-family: "Geist Pixel";
+  src: url("/fonts/GeistPixel-Square.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 @theme {
-  /* ---- raw ramp: dusk (cool neutrals) ---- */
-  --color-dusk-950: #080705;
-  --color-dusk-900: #14110b;
-  --color-dusk-800: #211d11;
-  --color-dusk-700: #24241a;
-  --color-dusk-600: #383e3a;
-  --color-dusk-500: #484e42;
+  /* ---- raw ramp: dusk (warm earthy neutrals) ---- */
+  --color-dusk-950: #14110b;
+  --color-dusk-900: #1f1d17;
+  --color-dusk-800: #26241d;
+  --color-dusk-700: #323026;
+  --color-dusk-600: #45463f;
+  --color-dusk-500: #52534f;
   --color-dusk-400: #6b6e60;
   --color-dusk-300: #8e9083;
   --color-dusk-200: #b4b5ab;
@@ -26,32 +36,35 @@
   --color-gold-800: #6e4a26;
   --color-gold-900: #513213;
 
-  /* ---- semantic aliases (dark-only) ---- */
-  --color-bg:             var(--color-dusk-950);
+  /* ---- semantic aliases: dark ground ---- */
+  --color-bg:             var(--color-dusk-900);
   --color-surface:        var(--color-dusk-800);
   --color-surface-raised: var(--color-dusk-700);
   --color-border:         var(--color-dusk-600);
-  --color-muted:          #7c6d50;
+  --color-muted:          #94846a;
   --color-ink:            var(--color-gold-100);
   --color-ink-soft:       var(--color-dusk-100);
   --color-accent:         var(--color-gold-300);
   --color-accent-strong:  var(--color-gold-200);
   --color-accent-deep:    var(--color-gold-900);
 
-  /* ---- typography slots (self-hosted fonts arrive next cycle) ---- */
-  --font-display: ui-serif, Georgia, "Times New Roman", serif;
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-}
+  /* ---- semantic aliases: sand ground (light expansive sections) ---- */
+  --color-sand:           #a69374;
+  --color-sand-ink:       #1a1712;
+  --color-sand-ink-soft:  #3a3428;
 
-/* atmosphere: radial golden-hour backlight */
-@utility bg-sun {
-  background-image: radial-gradient(
-    120% 90% at 50% 88%,
-    var(--color-gold-200) 0%,
-    var(--color-gold-500) 14%,
-    var(--color-gold-900) 34%,
-    var(--color-dusk-950) 68%
-  );
+  /* ---- the Tree of Growth: foliage + fruit (earthy greens, brick red) ---- */
+  --color-leaf-1: #5c7a3f;
+  --color-leaf-2: #6f8f4c;
+  --color-leaf-3: #46652f;
+  --color-apple: #b04a2f;
+  --color-apple-light: #d0663f;
+  --color-apple-deep: #7e3322;
+
+  /* ---- typography: Ubuntu display + Geist Pixel for the tracked small caps ---- */
+  --font-display: "Ubuntu", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-sans: "Geist Pixel", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
 }
 
 /* atmosphere: film grain overlay — apply to a relatively-positioned layer */
@@ -68,10 +81,76 @@
   }
 }
 
+/* atmosphere: cinematic edge falloff — apply to an absolute overlay layer */
+@utility vignette {
+  background-image: radial-gradient(
+    120% 95% at 50% 42%,
+    transparent 46%,
+    color-mix(in srgb, var(--color-dusk-950) 62%, transparent) 100%
+  );
+}
+
+/* atmosphere: vertical pixel-raster echoing the glitch/dissolve motif */
+@utility glitch-lines {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-gold-300) 12%, transparent) 0 1px,
+      transparent 1px 6px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-gold-500) 7%, transparent) 0 2px,
+      transparent 2px 17px
+    );
+}
+
 @layer base {
   html {
     color-scheme: dark;
   }
+
+  /* the Tree of Growth's ink: gold silhouette on the night ground, warm ink
+     once the ground turns to sand (data-ground flips at chapter 05) */
+  :root {
+    --color-tree: color-mix(in srgb, var(--color-gold-400) 90%, transparent);
+    /* foreground silhouettes — near-black against the sun's glow */
+    --color-tree-fore: #0e0c07;
+
+    /* watercolor washes, night act: everything is a gold-tinted silhouette
+       barely lifted off the dark ground — the sun is the only real light */
+    --scene-glow: #e1b479;
+    --scene-cloud: #4a4335;
+    --scene-cloud-shade: #383226;
+    --scene-hill-far: #2d2a1f;
+    --scene-meadow: #262319;
+    --scene-meadow-deep: #181610;
+    --scene-grass: #465831;
+    --scene-grass-dim: #37432a;
+    --scene-house: #4a4132;
+    --scene-roof: #55311e;
+    --scene-window: #ffd08e;
+    --scene-shadow: #0e0c07;
+  }
+  :root[data-ground="sand"] {
+    --color-tree: #4a4030;
+    --color-tree-fore: #35301f;
+
+    /* day act: the same pigments at full strength on warm paper */
+    --scene-glow: #fff6e6;
+    --scene-cloud: #e0d2b0;
+    --scene-cloud-shade: #b39a6f;
+    --scene-hill-far: #91805e;
+    --scene-meadow: #8d8557;
+    --scene-meadow-deep: #6d6a44;
+    --scene-grass: #5e7838;
+    --scene-grass-dim: #52683a;
+    --scene-house: #d8c8a6;
+    --scene-roof: #8a4a30;
+    --scene-window: #ffd08e;
+    --scene-shadow: #4a4030;
+  }
+
   body {
     background-color: var(--color-bg);
     color: var(--color-ink-soft);
@@ -87,6 +166,7 @@
     background-color: var(--color-accent);
     color: var(--color-dusk-950);
   }
+
   /* reduced-motion global safety net */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {

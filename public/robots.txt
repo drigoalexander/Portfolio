@@ -1,0 +1,5 @@
+# https://www.robotstxt.org/ — everyone is welcome, including AI crawlers
+User-agent: *
+Allow: /
+
+Sitemap: https://drigoalexander.vercel.app/sitemap-index.xml

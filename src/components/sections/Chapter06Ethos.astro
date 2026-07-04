@@ -1,0 +1,32 @@
+---
+import { chapters } from "../../content/story";
+
+const c = chapters[6]!;
+---
+
+<!-- the fruit: the text leads from the right; the apples hang left of frame -->
+<section
+  id={c.id}
+  data-chapter="6"
+  aria-labelledby={`${c.id}-title`}
+  class="relative flex min-h-svh items-center justify-end py-[18vh] pr-10 pl-6 text-sand-ink md:pr-[9vw]"
+>
+  <div class="relative z-10 flex max-w-md flex-col items-end space-y-6 text-right">
+    <h2
+      id={`${c.id}-title`}
+      data-anim="split"
+      data-anim-duration="1.2"
+      class="font-display text-[clamp(2rem,4.2vw,3.75rem)] leading-[0.95] text-sand-ink uppercase"
+    >
+      {c.title}
+    </h2>
+
+    <p
+      data-anim="split"
+      data-anim-delay="0.2"
+      class="max-w-xs font-sans text-xs leading-loose tracking-[0.08em] text-sand-ink-soft uppercase md:text-sm"
+    >
+      {c.body}
+    </p>
+  </div>
+</section>

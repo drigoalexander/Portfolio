@@ -1,17 +1,115 @@
 ---
+import Layout from "../layouts/Layout.astro";
+import ChapterIndicator from "../components/islands/ChapterIndicator.vue";
+import CoordinateDrift from "../components/islands/CoordinateDrift.vue";
+import CinematicOpening from "../components/ui/CinematicOpening.astro";
+import LogoMark from "../components/ui/LogoMark.astro";
+import TreeOfGrowth from "../components/ui/TreeOfGrowth.astro";
+import Chapter00Hero from "../components/sections/Chapter00Hero.astro";
+import Chapter01Origin from "../components/sections/Chapter01Origin.astro";
+import Chapter02Craft from "../components/sections/Chapter02Craft.astro";
+import Chapter03Knowing from "../components/sections/Chapter03Knowing.astro";
+import Chapter04Leap from "../components/sections/Chapter04Leap.astro";
+import Chapter05Now from "../components/sections/Chapter05Now.astro";
+import Chapter06Ethos from "../components/sections/Chapter06Ethos.astro";
+import Chapter07Contact from "../components/sections/Chapter07Contact.astro";
+import { chapters, site } from "../content/story";
 
+const indicatorChapters = chapters.map((c) => ({
+  id: c.id,
+  num: c.num,
+  label: c.eyebrow,
+  tone: c.tone,
+}));
+
+// no-JS/first-paint sunrise: evenly spaced stops; useGroundGradient re-measures
+// the real section centers on the client and refines these
+const fallbackStops = chapters.map(
+  (c, i) => c.ground + " " + (((i + 0.5) / chapters.length) * 100).toFixed(1) + "%",
+);
+const fallbackGradient = "linear-gradient(to bottom, " + fallbackStops.join(", ") + ")";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title={`${site.name} — ${site.role}`}>
+  <a
+    href="#main"
+    class="sr-only z-50 rounded-full bg-accent px-5 py-2 text-dusk-950 focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
+  >
+    Skip to content
+  </a>
+
+  <CinematicOpening />
+
+  <header
+    class="site-topbar fixed inset-x-0 top-0 z-40 flex items-center justify-between px-6 py-5 md:px-[7vw]"
+  >
+    <a
+      href="#hero"
+      data-site-logo
+      aria-label={`${site.wordmark} — home`}
+      class="site-logo inline-flex focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
+    >
+      <LogoMark class="h-7 w-auto" />
+    </a>
+    <a
+      href={`mailto:${site.email}`}
+      class="rounded-full bg-accent px-5 py-2 font-sans text-[10px] tracking-[0.25em] text-dusk-950 uppercase transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-strong"
+    >
+      Get in touch
+    </a>
+  </header>
+
+  <div id="ground" class="relative" style={`background-image: ${fallbackGradient}`}>
+    <TreeOfGrowth />
+
+    <main id="main">
+      <Chapter00Hero />
+      <Chapter01Origin />
+      <Chapter02Craft />
+      <Chapter03Knowing />
+      <Chapter04Leap />
+      <Chapter05Now />
+      <Chapter06Ethos />
+    </main>
+
+    <Chapter07Contact />
+  </div>
+
+  <ChapterIndicator client:visible chapters={indicatorChapters} />
+  <CoordinateDrift client:visible />
+
+  <!-- one film-grain pass over the whole frame, chrome included -->
+  <div class="pointer-events-none fixed inset-0 z-50" aria-hidden="true">
+    <div class="film-grain h-full w-full"></div>
+  </div>
+</Layout>
+
+<style>
+  .site-topbar {
+    color: var(--color-ink);
+    transition: color 0.5s ease;
+  }
+  :root[data-ground="sand"] .site-topbar {
+    color: var(--color-sand-ink);
+  }
+  /* while the bumper owns the frame, its flying mark IS the logo */
+  :global(:root.cine-play) .site-logo {
+    opacity: 0;
+  }
+</style>
+
+<script>
+  import { useGroundGradient, useGroundTone } from "../lib/gsap";
+  import { chapters } from "../content/story";
+
+  // one document-long sunrise: a measured stop at each chapter's center, so
+  // every tone change between sections is a smooth gradation
+  useGroundGradient(
+    "#ground",
+    chapters.map((c) => ({ id: c.id, color: c.ground })),
+  );
+
+  // flip chrome + tree ink to the light ground at THE WIDER WORLD — works on
+  // mobile too, where the ChapterIndicator island is display:none
+  useGroundTone("#now");
+</script>

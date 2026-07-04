@@ -1,0 +1,92 @@
+---
+/**
+ * The bumper — a film-ident sting before the site: on a full-bleed dark
+ * frame the logo mark inks itself on, floods gold, holds like a studio
+ * card, then PANS up into the topbar and becomes the site logo while the
+ * dark frame fades off the world (choreography in `useCinematicOpening`).
+ *
+ * The inline gate script runs before this element paints: it shows the
+ * bumper only when JS is available, motion is allowed, and it hasn't
+ * already played this session — so no-JS and reduced-motion visitors
+ * never see (or wait behind) it. The same `cine-play` class hides the
+ * topbar logo until the flying mark lands on it.
+ *
+ * The mark is the 512 logo (see `src/assets/logo/mark.ts`): two outline
+ * copies (`data-cine-stroke`) and one solid copy (`data-cine-fill`).
+ */
+import { LOGO_DASH, LOGO_FULL, LOGO_RIBBON, LOGO_VIEWBOX } from "../../assets/logo/mark";
+---
+
+<script is:inline>
+  // pre-paint gate: show the bumper only when it will actually play
+  try {
+    if (
+      !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+      sessionStorage.getItem("drigo:cine-opening") === null
+    ) {
+      document.documentElement.classList.add("cine-play");
+    }
+  } catch (e) {
+    /* storage blocked → play it; worse is a blank frame nobody sees */
+    document.documentElement.classList.add("cine-play");
+  }
+</script>
+
+<div id="cine-opening" class="cine-opening" aria-hidden="true">
+  <div class="cine-bg" data-cine-bg></div>
+  <svg
+    data-cine-mark
+    viewBox={LOGO_VIEWBOX}
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path data-cine-fill fill="currentColor" stroke="none" d={LOGO_FULL}></path>
+    <path
+      data-cine-stroke
+      stroke="currentColor"
+      stroke-width="3"
+      stroke-linejoin="round"
+      d={LOGO_RIBBON}></path>
+    <path
+      data-cine-stroke
+      stroke="currentColor"
+      stroke-width="3"
+      stroke-linejoin="round"
+      d={LOGO_DASH}></path>
+  </svg>
+</div>
+
+<style>
+  .cine-opening {
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    /* the topbar's ink, so the landed mark swaps seamlessly */
+    color: var(--color-ink);
+  }
+  :global(:root.cine-play) .cine-opening {
+    display: flex;
+  }
+  /* full-bleed dark frame — fades away on its own while the mark flies */
+  .cine-bg {
+    position: absolute;
+    inset: 0;
+    background-color: var(--color-dusk-950);
+  }
+  .cine-opening svg {
+    position: relative;
+    width: clamp(200px, 26vw, 320px);
+    height: auto;
+    opacity: 0; /* the timeline owns it from the first tick */
+  }
+</style>
+
+<script>
+  import { useCinematicOpening } from "../../lib/gsap";
+
+  const el = document.getElementById("cine-opening");
+  if (el) useCinematicOpening(el);
+</script>

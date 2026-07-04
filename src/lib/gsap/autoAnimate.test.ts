@@ -28,4 +28,30 @@ describe("parseAnimAttrs", () => {
   it("ignores unknown kinds", () => {
     expect(parseAnimAttrs(el({ "data-anim": "wobble" }))).toBeNull();
   });
+
+  it("parses a scramble with a custom charset", () => {
+    const cfg = parseAnimAttrs(
+      el({ "data-anim": "scramble", "data-anim-chars": "▓▒░", "data-anim-duration": "2.4" }),
+    );
+    expect(cfg?.kind).toBe("scramble");
+    expect(cfg?.chars).toBe("▓▒░");
+    expect(cfg?.duration).toBe(2.4);
+  });
+
+  it("defaults chars to undefined when absent", () => {
+    const cfg = parseAnimAttrs(el({ "data-anim": "scramble" }));
+    expect(cfg?.chars).toBeUndefined();
+  });
+
+  it("parses a clip with a starting inset via data-anim-from", () => {
+    const cfg = parseAnimAttrs(el({ "data-anim": "clip", "data-anim-from": "22" }));
+    expect(cfg?.kind).toBe("clip");
+    expect(cfg?.from).toBe(22);
+  });
+
+  it("parses a ScrollTrigger start override", () => {
+    const cfg = parseAnimAttrs(el({ "data-anim": "reveal", "data-anim-start": "top 99%" }));
+    expect(cfg?.start).toBe("top 99%");
+    expect(parseAnimAttrs(el({ "data-anim": "reveal" }))?.start).toBeUndefined();
+  });
 });

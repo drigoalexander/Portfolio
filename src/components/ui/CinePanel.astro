@@ -1,0 +1,58 @@
+---
+import type { HTMLAttributes } from "astro/types";
+
+/**
+ * Cinematic panel. With `src` it renders the generated artwork under a warm
+ * grade (multiply wash + vignette + grain); without it, a graded duotone
+ * placeholder carrying the glitch-raster motif. Extra attributes (e.g.
+ * data-anim) pass through to the frame element.
+ */
+interface Props extends HTMLAttributes<"div"> {
+  ratio?: string;
+  tone?: "deep" | "warm" | "olive";
+  src?: string;
+  alt?: string;
+}
+const {
+  ratio = "3/4",
+  tone = "deep",
+  src,
+  alt = "",
+  class: className = "",
+  ...rest
+} = Astro.props;
+const tones: Record<NonNullable<Props["tone"]>, string> = {
+  deep: "bg-dusk-800",
+  warm: "bg-gold-800/70",
+  olive: "bg-dusk-500",
+};
+---
+
+<div
+  {...rest}
+  class={`film-grain relative overflow-hidden ${tones[tone]} ${className}`}
+  style={`aspect-ratio: ${ratio}`}
+>
+  {
+    src ? (
+      <>
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          decoding="async"
+          class="absolute inset-0 h-full w-full object-cover"
+        />
+        <div class="absolute inset-0 bg-accent-deep/25 mix-blend-multiply" />
+        <div class="vignette absolute inset-0" />
+      </>
+    ) : (
+      <>
+        <div class="absolute inset-0 bg-linear-to-br from-gold-700/25 via-transparent to-dusk-950/65" />
+        <div class="glitch-lines absolute inset-0 opacity-70" />
+        <div class="vignette absolute inset-0" />
+      </>
+    )
+  }
+  <slot />
+</div>

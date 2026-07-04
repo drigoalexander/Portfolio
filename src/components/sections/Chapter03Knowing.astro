@@ -1,0 +1,36 @@
+---
+import { chapters } from "../../content/story";
+
+const c = chapters[3]!;
+---
+
+<!-- the turn inward — the text leads; the roots reach down beside it -->
+<section
+  id={c.id}
+  data-chapter="3"
+  aria-labelledby={`${c.id}-title`}
+  class="relative flex min-h-svh items-center py-[28vh] pr-6 pl-10 md:pl-[9vw]"
+>
+  <div class="relative z-10 max-w-md space-y-6">
+    <h2
+      id={`${c.id}-title`}
+      data-anim="split"
+      data-anim-duration="1.4"
+      class="font-display text-[clamp(2rem,4.2vw,3.75rem)] leading-[0.95] text-ink uppercase"
+    >
+      {c.title}
+    </h2>
+
+    <p
+      data-anim="split"
+      data-anim-delay="0.25"
+      class="max-w-xs font-sans text-xs leading-loose tracking-widest text-ink-soft/90 uppercase md:text-sm"
+    >
+      {c.body}
+    </p>
+
+    <p data-anim="reveal" class="font-sans text-[10px] tracking-[0.35em] text-muted uppercase">
+      — {c.meta}
+    </p>
+  </div>
+</section>

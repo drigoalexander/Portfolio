@@ -1,0 +1,60 @@
+---
+import { chapters } from "../../content/story";
+
+const c = chapters[0]!;
+const [firstName = "", ...restName] = c.title.split(" ");
+const lastName = restName.join(" ");
+---
+
+<section
+  id={c.id}
+  data-chapter="0"
+  aria-labelledby={`${c.id}-title`}
+  class="relative flex min-h-svh flex-col overflow-hidden"
+>
+  <div class="absolute inset-0" aria-hidden="true">
+    <div class="vignette absolute inset-0"></div>
+  </div>
+
+  <!-- the name owns the night sky; the quote hangs right, above the wall;
+       the scene (cottage, sun, field, seed) owns the lower third — nothing
+       crosses the horizon -->
+  <div
+    class="relative z-10 flex flex-1 flex-col justify-between px-6 pt-[13vh] pb-[34vh] md:px-[7vw]"
+  >
+    <div>
+      <p data-anim="reveal" class="font-sans text-[11px] tracking-[0.6em] text-muted uppercase">
+        {c.eyebrow}
+      </p>
+
+      <h1
+        id={`${c.id}-title`}
+        class="mt-7 font-display text-[clamp(3rem,9.5vw,9rem)] leading-[0.85] font-medium tracking-[0.01em] text-ink uppercase"
+      >
+        <span class="block" data-anim="split" data-anim-duration="1.4">{firstName}</span>
+        <span
+          class="block md:pl-[8vw]"
+          data-anim="split"
+          data-anim-duration="1.4"
+          data-anim-delay="0.2">{lastName}</span
+        >
+      </h1>
+    </div>
+
+    <p
+      data-anim="split"
+      data-anim-delay="0.6"
+      class="max-w-sm self-end text-right font-display text-lg leading-relaxed text-ink-soft/90 italic md:text-xl"
+    >
+      “{c.body}”
+    </p>
+  </div>
+
+  <p
+    data-anim="reveal"
+    data-anim-delay="1.2"
+    class="absolute inset-x-0 bottom-7 z-10 text-center font-sans text-[10px] tracking-[0.5em] text-muted uppercase"
+  >
+    Scroll — the story grows
+  </p>
+</section>
