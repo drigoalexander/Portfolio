@@ -322,10 +322,14 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
 
     <!-- 00 · the seed, drawn on arrival, planted just under the ground
          line (the soil is a translucent wash, so it reads through like
-         the roots do) -->
-    <g data-tree-stage-onload data-tree-cam="180 690 640 450" transform="translate(0 22)">
-      <path stroke-width="2" d="M 493 1059 C 487 1043, 502 1032, 511 1043 C 518 1053, 506 1064, 493 1059" />
-      <path stroke-width="1.25" d="M 499 1053 l 6 -5" />
+         the roots do) — seed-sized: scaled down around its own center -->
+    <g
+      data-tree-stage-onload
+      data-tree-cam="180 690 640 450"
+      transform="translate(0 22) translate(502 1048) scale(0.6) translate(-502 -1048)"
+    >
+      <path stroke-width="3" d="M 493 1059 C 487 1043, 502 1032, 511 1043 C 518 1053, 506 1064, 493 1059" />
+      <path stroke-width="1.75" d="M 499 1053 l 6 -5" />
     </g>
 
     <!-- 01 · origin — a sprout, the first two green leaves -->
