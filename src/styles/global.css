@@ -1,0 +1,98 @@
+@import "tailwindcss";
+
+@theme {
+  /* ---- raw ramp: dusk (cool neutrals) ---- */
+  --color-dusk-950: #080705;
+  --color-dusk-900: #14110b;
+  --color-dusk-800: #211d11;
+  --color-dusk-700: #24241a;
+  --color-dusk-600: #383e3a;
+  --color-dusk-500: #484e42;
+  --color-dusk-400: #6b6e60;
+  --color-dusk-300: #8e9083;
+  --color-dusk-200: #b4b5ab;
+  --color-dusk-100: #d2d2c9;
+  --color-dusk-50:  #e9e7de;
+
+  /* ---- raw ramp: gold (the sun) ---- */
+  --color-gold-50:  #fff6e6;
+  --color-gold-100: #ffdea9;
+  --color-gold-200: #ffd08e;
+  --color-gold-300: #fac984;
+  --color-gold-400: #e1b479;
+  --color-gold-500: #c19968;
+  --color-gold-600: #a97f4e;
+  --color-gold-700: #996e43;
+  --color-gold-800: #6e4a26;
+  --color-gold-900: #513213;
+
+  /* ---- semantic aliases (dark-only) ---- */
+  --color-bg:             var(--color-dusk-950);
+  --color-surface:        var(--color-dusk-800);
+  --color-surface-raised: var(--color-dusk-700);
+  --color-border:         var(--color-dusk-600);
+  --color-muted:          #7c6d50;
+  --color-ink:            var(--color-gold-100);
+  --color-ink-soft:       var(--color-dusk-100);
+  --color-accent:         var(--color-gold-300);
+  --color-accent-strong:  var(--color-gold-200);
+  --color-accent-deep:    var(--color-gold-900);
+
+  /* ---- typography slots (self-hosted fonts arrive next cycle) ---- */
+  --font-display: ui-serif, Georgia, "Times New Roman", serif;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* atmosphere: radial golden-hour backlight */
+@utility bg-sun {
+  background-image: radial-gradient(
+    120% 90% at 50% 88%,
+    var(--color-gold-200) 0%,
+    var(--color-gold-500) 14%,
+    var(--color-gold-900) 34%,
+    var(--color-dusk-950) 68%
+  );
+}
+
+/* atmosphere: film grain overlay — apply to a relatively-positioned layer */
+@utility film-grain {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+  body {
+    background-color: var(--color-bg);
+    color: var(--color-ink-soft);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    color: var(--color-ink);
+  }
+  ::selection {
+    background-color: var(--color-accent);
+    color: var(--color-dusk-950);
+  }
+  /* reduced-motion global safety net */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
