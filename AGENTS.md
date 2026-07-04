@@ -2,9 +2,15 @@
 
 ## Vibe
 
-Cinematic golden-hour portfolio: warm sun-gold accents on near-black, dark
-silhouettes, film-grain, editorial/vintage mood. High contrast, dramatic,
-GSAP-driven "wow". Dark-only.
+Cinematic, editorial, luxury-architectural. Warm earthy two-tone palette
+(dark warm brown ↔ sand), high-contrast serif display + wide-tracked uppercase
+grotesque, full-bleed renders, fine grain, and a signature glitch / pixel-
+dissolve motion motif. Motion is slow, weighted, scroll-driven — premium, not
+flashy.
+
+**Primary design reference:** [`docs/design-reference/sondaven/`](docs/design-reference/sondaven/)
+— read `design-notes.md` there before building UI or animation. Match its
+palette, typography, layout, and motion language.
 
 ## Stack
 
