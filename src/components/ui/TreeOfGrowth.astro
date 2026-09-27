@@ -4,20 +4,30 @@
  * cinematic landscape. The SCENE is watercolor: gradient-shaded masses
  * (clouds lit above / shadowed below, the hill warm at its crest, the
  * meadow deepening toward the viewer) that ship painted and never animate.
- * The TREE stays pure ink — hand-drawn strokes that draw themselves, leaves
- * and apples that pop — scrubbed to each chapter by `useTreeGrowth`, while
- * a scroll camera (animated viewBox) starts tight on the seed and pulls
- * back to the full wide shot.
+ * The TREE stays pure ink — pen strokes that draw themselves, leaves and
+ * apples that unfurl and swell — scrubbed to each chapter by
+ * `useTreeGrowth`, while a scroll camera (animated viewBox) starts tight on
+ * the seed and pulls back to the full wide shot.
  *
- * Tree/scenery strokes inherit `currentColor` (--color-tree flips gold →
- * ink when the ground turns to sand); scene pigments live in `--scene-*`
- * vars (global.css) and flip with it — gold-tinted silhouettes on the
- * night act, full color on sand. Foliage and fruit keep their own tokens:
- * the greens and the apple red are the page's punctuation.
+ * Every line is real pen ink: `<Ink>` swaps a uniform stroke for its
+ * build-time outline (touch-down weight, a thinning flick, a hand's
+ * wobble — `src/lib/ink.ts`). Grass blades taper root to tip; each leaf
+ * carries a drawn midrib and its own hand-mixed green.
+ *
+ * Color is one blend, `--day` (0 night → 1 sand morning), scrubbed with the
+ * scroll across The Leap → Now: tree ink goes gold → dark, the scene's
+ * pigments go from gold-tinted silhouettes to full color. Nothing is lit or
+ * glowed on top; the greens and the apple red are the page's punctuation.
+ *
+ * The blurred far and mid planes are their own svgs, so each is blurred
+ * once as a cached layer instead of re-blurred every frame the canopy
+ * sways in front of it; the camera drives all three viewBoxes.
  *
  * All placement is deterministic pseudo-random (golden-angle spread,
  * index-seeded jitter), so every build renders the same painting.
  */
+import Ink from "./Ink.astro";
+import { inkOutline } from "../../lib/ink";
 
 /** deterministic -1..1 jitter, stable per (index, seed) */
 const jit = (i: number, seed: number) => ((((i * 73 + seed * 41) % 89) + 89) % 89) / 44.5 - 1;
@@ -182,19 +192,98 @@ const midRowBlades = bladeClumps(-628, 1460, 20, 61, 8, 14, 4);
 const nearRowBlades = bladeClumps(-616, 1460, 24, 71, 11, 18, 4);
 const grassD = (x: number, lean: number, tall: number, base = 1058) =>
   `M ${x} ${base + ((((x * 7) % 5) + 5) % 5)} c 0 ${-Math.round(tall * 0.4)} ${lean} ${-Math.round(tall * 0.75)} ${(lean * 2.2).toFixed(1)} ${-tall}`;
+/** a grass blade as pen ink: thick at the root, sharp at the tip */
+const blade = (b: { x: number; lean: number; tall: number }, w: number, base?: number) =>
+  inkOutline(grassD(b.x, b.lean, b.tall, base), w, "grass");
+
+/** hand-mixed greens: each leaf nudged warmer or cooler from its pigment */
+const LEAF_PIGMENT = ["#5c7a3f", "#6f8f4c", "#46652f"];
+const mixHex = (a: string, b: string, t: number) =>
+  "#" +
+  [1, 3, 5]
+    .map((i) => {
+      const va = parseInt(a.slice(i, i + 2), 16), vb = parseInt(b.slice(i, i + 2), 16);
+      return Math.round(va + (vb - va) * t).toString(16).padStart(2, "0");
+    })
+    .join("");
+const leafFill = (variant: number, i: number) => {
+  const h = (jit(i, 17) + 1) / 2;
+  const base = LEAF_PIGMENT[variant]!;
+  return h < 0.5 ? mixHex(base, "#86a04a", (0.5 - h) * 0.7) : mixHex(base, "#3b5634", (h - 0.5) * 0.7);
+};
+/** the midrib, drawn along every LEAF_D shape from the stem */
+const VEIN_D = "M 1.5 -0.8 C 6 -3.2, 12 -4.3, 17.5 -3.3";
+
+const svgAttrs = {
+  viewBox: "-80 40 920 1240",
+  preserveAspectRatio: "xMidYMid meet",
+  fill: "none",
+  stroke: "currentColor",
+  "stroke-linecap": "round",
+  "stroke-linejoin": "round",
+} as const;
 ---
 
 <div class="tree-art pointer-events-none fixed inset-0 z-0" aria-hidden="true">
-  <svg
-    id="tree-of-growth"
-    class="h-full w-full"
-    viewBox="-80 40 920 1240"
-    preserveAspectRatio="xMidYMid meet"
-    fill="none"
-    stroke="currentColor"
-    stroke-linecap="round"
-    stroke-linejoin="round"
-  >
+  <!-- FAR PLANE: painted clouds, a hazy ridge, the sun's backlight, birds -->
+  <svg class="plane plane-far" {...svgAttrs}>
+    <g class="layer-far" data-tree-parallax="26">
+      {CLOUDS.map((c) => (
+        <path
+          class={`wash ${c.shade ? "cloud-shade" : "cloud"}`}
+          fill-opacity={c.fo}
+          stroke-opacity={c.shade ? 0 : 0.14}
+          d={c.d}
+        />
+      ))}
+      <path
+        class="wash hill-far"
+        fill-opacity="0.35"
+        stroke-opacity="0.15"
+        d="M -700 1046 C -520 1020, -300 1042, -80 1032 C 140 1046, 320 1024, 520 1034 C 700 1042, 900 1022, 1100 1032 C 1240 1038, 1380 1028, 1520 1032 L 1520 1130 L -700 1130 Z"
+      />
+      <path
+        fill="currentColor"
+        fill-opacity="0.13"
+        stroke="none"
+        d="M 84 1044 l 4 -22 c -13 -3 -19 -14 -14 -24 c 5 -11 21 -14 29 -5 c 8 8 5 22 -6 27 l 3 24 z"
+      />
+      <rect x="-700" y="915" width="2260" height="145" fill="url(#horizon-glow)" stroke="none"
+      ></rect>
+      <Ink kind="line" w={1.25} o={0.7} d="M 150 242 c 6 -7 13 -7 18 0 c 5 -7 12 -7 17 0" />
+      <Ink kind="line" w={1.25} o={0.55} d="M 884 186 c 5 -6 11 -6 15 0 c 4 -6 10 -6 14 0" />
+      <Ink kind="line" w={1} o={0.6} d="M 448 122 c 4 -5 9 -5 13 0 c 4 -5 9 -5 12 0" />
+    </g>
+  </svg>
+
+  <!-- MID PLANE: the stone wall, haze, far grass -->
+  <svg class="plane plane-mid" {...svgAttrs}>
+    <g class="layer-mid" data-tree-parallax="12">
+      <!-- drifting haze -->
+      <Ink kind="line" w={1.25} o={0.3} d="M 396 792 c 28 -8 66 -8 96 0" />
+      <Ink kind="line" w={1.25} o={0.25} d="M 434 774 c 18 -5 44 -5 64 0" />
+      <Ink kind="line" w={1} o={0.55} d="M 330 798 c 4 -5 9 -5 13 0 c 4 -5 9 -5 12 0" />
+      <Ink kind="line" w={1} o={0.45} d="M 386 812 c 3 -4 7 -4 10 0 c 3 -4 7 -4 10 0" />
+      <!-- the stone wall — kept faint so chapter copy stays legible over it -->
+      <g fill-opacity="0.5">
+        <Ink kind="line" w={1.75} d="M 640 1030 C 685 1026, 730 1029, 778 1026" />
+        <Ink kind="line" w={1.75} d="M 641 1058 l -1 -28" />
+        <Ink kind="line" w={1.75} d="M 777 1056 l 1 -30" />
+        <Ink kind="line" w={1.25} d="M 672 1032 l 1 24" />
+        <Ink kind="line" w={1.25} d="M 706 1030 l 1 25" />
+        <Ink kind="line" w={1.25} d="M 742 1030 l 0 24" />
+        <Ink kind="line" w={1} d="M 655 1044 l 18 -1" />
+        <Ink kind="line" w={1} d="M 715 1042 l 20 -1" />
+        <Ink kind="line" w={1} d="M 690 1046 l 14 0" />
+      </g>
+      <!-- far grass row -->
+      <g data-wind="far">
+        {farBlades.map((b) => <path class="grass-dim" fill-opacity="0.6" d={blade(b, 1.25)} />)}
+      </g>
+    </g>
+  </svg>
+
+  <svg id="tree-of-growth" class="plane" {...svgAttrs}>
     <defs>
       <!-- warm light rising off the horizon -->
       <linearGradient id="horizon-glow" x1="0" y1="0" x2="0" y2="1">
@@ -222,100 +311,41 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
       </radialGradient>
     </defs>
 
-    <!-- ══ THE SCENE — still, fully painted, never animated. Built in depth
-         planes: far (blurred, hazy, slow parallax) → mid → focal. ══ -->
-
-    <!-- FAR PLANE: painted clouds, a hazy ridge, the sun's backlight, birds -->
-    <g class="layer-far" data-tree-parallax="26">
-      {CLOUDS.map((c) => (
-        <path
-          class={`wash ${c.shade ? "cloud-shade" : "cloud"}`}
-          fill-opacity={c.fo}
-          stroke-opacity={c.shade ? 0 : 0.14}
-          d={c.d}
-        />
-      ))}
-      <path
-        class="wash hill-far"
-        fill-opacity="0.35"
-        stroke-opacity="0.15"
-        d="M -700 1046 C -520 1020, -300 1042, -80 1032 C 140 1046, 320 1024, 520 1034 C 700 1042, 900 1022, 1100 1032 C 1240 1038, 1380 1028, 1520 1032 L 1520 1130 L -700 1130 Z"
-      />
-      <path
-        fill="currentColor"
-        fill-opacity="0.13"
-        stroke="none"
-        d="M 84 1044 l 4 -22 c -13 -3 -19 -14 -14 -24 c 5 -11 21 -14 29 -5 c 8 8 5 22 -6 27 l 3 24 z"
-      />
-      <rect x="-700" y="915" width="2260" height="145" fill="url(#horizon-glow)" stroke="none"
-      ></rect>
-      <path stroke-width="1.25" stroke-opacity="0.7" d="M 150 242 c 6 -7 13 -7 18 0 c 5 -7 12 -7 17 0" />
-      <path stroke-width="1.25" stroke-opacity="0.55" d="M 884 186 c 5 -6 11 -6 15 0 c 4 -6 10 -6 14 0" />
-      <path stroke-width="1" stroke-opacity="0.6" d="M 448 122 c 4 -5 9 -5 13 0 c 4 -5 9 -5 12 0" />
-    </g>
-
-    <!-- MID PLANE: the stone wall, haze, far grass -->
-    <g class="layer-mid" data-tree-parallax="12">
-      <!-- drifting haze -->
-      <path stroke-width="1.25" stroke-opacity="0.3" d="M 396 792 c 28 -8 66 -8 96 0" />
-      <path stroke-width="1.25" stroke-opacity="0.25" d="M 434 774 c 18 -5 44 -5 64 0" />
-      <path stroke-width="1" stroke-opacity="0.55" d="M 330 798 c 4 -5 9 -5 13 0 c 4 -5 9 -5 12 0" />
-      <path stroke-width="1" stroke-opacity="0.45" d="M 386 812 c 3 -4 7 -4 10 0 c 3 -4 7 -4 10 0" />
-      <!-- the stone wall — kept faint so chapter copy stays legible over it -->
-      <g stroke-opacity="0.5">
-        <path stroke-width="1.75" d="M 640 1030 C 685 1026, 730 1029, 778 1026" />
-        <path stroke-width="1.75" d="M 641 1058 l -1 -28" />
-        <path stroke-width="1.75" d="M 777 1056 l 1 -30" />
-        <path stroke-width="1.25" d="M 672 1032 l 1 24" />
-        <path stroke-width="1.25" d="M 706 1030 l 1 25" />
-        <path stroke-width="1.25" d="M 742 1030 l 0 24" />
-        <path stroke-width="1" d="M 655 1044 l 18 -1" />
-        <path stroke-width="1" d="M 715 1042 l 20 -1" />
-        <path stroke-width="1" d="M 690 1046 l 14 0" />
-      </g>
-      <!-- far grass row -->
-      {farBlades.map((b) => (
-        <path class="grass-dim" stroke-width="1.25" stroke-opacity="0.6" d={grassD(b.x, b.lean, b.tall)} />
-      ))}
-    </g>
-
     <!-- FOCAL PLANE: the meadow, the cottage, near grass -->
     <g>
       <path
         class="wash meadow"
         d="M -700 1062 C 100 1052, 342 1069, 500 1061 C 662 1053, 798 1067, 1520 1056 L 1520 2400 L -700 2400 Z"
       />
-      <path stroke-width="2" d="M 80 1063 C 220 1054, 342 1069, 500 1061 C 662 1053, 798 1067, 920 1057" />
-      <path stroke-width="1.5" stroke-opacity="0.5" d="M -560 1060 C -420 1054, -260 1064, -80 1058" />
-      <path stroke-width="1.5" stroke-opacity="0.5" d="M 920 1057 C 1080 1063, 1240 1052, 1400 1058" />
+      <Ink kind="line" w={2} d="M 80 1063 C 220 1054, 342 1069, 500 1061 C 662 1053, 798 1067, 920 1057" />
+      <Ink kind="line" w={1.5} o={0.5} d="M -560 1060 C -420 1054, -260 1064, -80 1058" />
+      <Ink kind="line" w={1.5} o={0.5} d="M 920 1057 C 1080 1063, 1240 1052, 1400 1058" />
 
       <!-- the cottage: shadow, warm washed walls, brick roof, lit window -->
       <g transform="translate(275 1058) scale(1.28) translate(-275 -1058)">
         <path class="wash shadow-wash" fill-opacity="0.18" d={blob(212, 1064, 92, 7, 9, 57)} />
         <path class="wash house" fill-opacity="0.6" stroke-opacity="0.3" d="M 221 1058 L 221 996 L 275 955 L 332 994 L 332 1058 Z" />
-        <path class="roof" stroke-width="5.5" stroke-opacity="0.9" d="M 214 1000 L 275 950 L 336 996" />
+        <Ink class="roof" kind="line" w={5.5} o={0.9} d="M 214 1000 L 275 950 L 336 996" />
         <path class="roof-fill" fill-opacity="0.85" d="M 296 968 l -1 -20 l 14 -1 l 1 14 Z" />
         <circle cx="295.5" cy="1031" r="13" fill="url(#window-glow)" stroke="none"></circle>
-        <path stroke-width="2" d="M 228 1060 L 230 992" />
-        <path stroke-width="2" d="M 322 1060 L 320 992" />
-        <path stroke-width="2" d="M 218 994 L 275 952 L 334 992" />
-        <path stroke-width="1.5" d="M 296 968 l -1 -20 l 14 -1 l 1 14" />
-        <path stroke-width="1.25" stroke-opacity="0.5" d="M 305 938 c 6 -10 -4 -16 4 -26" />
-        <path stroke-width="1.25" stroke-opacity="0.35" d="M 310 908 c 6 -8 -2 -14 4 -22" />
+        <Ink kind="line" w={2} d="M 228 1060 L 230 992" />
+        <Ink kind="line" w={2} d="M 322 1060 L 320 992" />
+        <Ink kind="line" w={2} d="M 218 994 L 275 952 L 334 992" />
+        <Ink kind="line" w={1.5} d="M 296 968 l -1 -20 l 14 -1 l 1 14" />
+        <Ink kind="line" w={1.25} o={0.5} d="M 305 938 c 6 -10 -4 -16 4 -26" data-smoke />
+        <Ink kind="line" w={1.25} o={0.35} d="M 310 908 c 6 -8 -2 -14 4 -22" data-smoke />
         <path class="roof-fill" fill-opacity="0.6" d="M 262 1060 l 0 -26 c 0 -7 13 -7 13 0 l 0 26 Z" />
-        <path stroke-width="1.5" d="M 262 1060 l 0 -26 c 0 -7 13 -7 13 0 l 0 26" />
+        <Ink kind="line" w={1.5} d="M 262 1060 l 0 -26 c 0 -7 13 -7 13 0 l 0 26" />
         <path class="window" fill-opacity="0.8" stroke-width="1.5" d="M 288 1024 h 15 v 15 h -15 z" />
-        <path stroke-width="1" d="M 295 1024 l 0 15" />
-        <path stroke-width="1" d="M 288 1031 l 15 0" />
+        <Ink kind="line" w={1} d="M 295 1024 l 0 15" />
+        <Ink kind="line" w={1} d="M 288 1031 l 15 0" />
       </g>
 
       <!-- the near field: two rows of bunched green blades -->
-      {midRowBlades.map((b) => (
-        <path class="grass" stroke-width="1.5" stroke-opacity="0.7" d={grassD(b.x, b.lean, b.tall)} />
-      ))}
-      {nearRowBlades.map((b) => (
-        <path class="grass" stroke-width="2" d={grassD(b.x, b.lean, b.tall, 1064)} />
-      ))}
+      <g data-wind="near">
+        {midRowBlades.map((b) => <path class="grass" fill-opacity="0.7" d={blade(b, 1.5)} />)}
+        {nearRowBlades.map((b) => <path class="grass" d={blade(b, 2, 1064)} />)}
+      </g>
     </g>
 
     <!-- ══ THE TREE — the only thing that grows, and it stays pure ink ══ -->
@@ -328,31 +358,40 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
       data-tree-cam="180 690 640 450"
       transform="translate(0 22) translate(502 1048) scale(0.6) translate(-502 -1048)"
     >
-      <path stroke-width="3" d="M 493 1059 C 487 1043, 502 1032, 511 1043 C 518 1053, 506 1064, 493 1059" />
-      <path stroke-width="1.75" d="M 499 1053 l 6 -5" />
+      <Ink draw w={3} d="M 493 1059 C 487 1043, 502 1032, 511 1043 C 518 1053, 506 1064, 493 1059" />
+      <Ink draw w={1.75} d="M 499 1053 l 6 -5" />
     </g>
 
     <!-- 01 · origin — a sprout, the first two green leaves -->
     <g data-tree-stage="origin" data-tree-cam="310 810 380 310">
-      <path stroke-width="3" d="M 502 1058 C 505 1020, 494 990, 497 953" />
-      <g transform="translate(497 953) rotate(205)">
-        <path class="leaf leaf-2" data-tree-pop d={LEAF_D[1]}></path>
+      <Ink draw w={3} d="M 502 1058 C 505 1020, 494 990, 497 953" />
+      <g transform="translate(497 953) rotate(205)" data-leaf>
+        <g data-tree-pop>
+          <path class="leaf leaf-2" style={`fill: ${leafFill(1, 901)}`} d={LEAF_D[1]}></path>
+          <path class="vein" d={VEIN_D}></path>
+        </g>
       </g>
-      <g transform="translate(499 948) rotate(-28)">
-        <path class="leaf leaf-1" data-tree-pop d={LEAF_D[0]}></path>
+      <g transform="translate(499 948) rotate(-28)" data-leaf>
+        <g data-tree-pop>
+          <path class="leaf leaf-1" style={`fill: ${leafFill(0, 902)}`} d={LEAF_D[0]}></path>
+          <path class="vein" d={VEIN_D}></path>
+        </g>
       </g>
     </g>
 
     <!-- 02 · craft — the sapling: the stem carries on, disciplined branchlets -->
     <g data-tree-stage="craft" data-tree-cam="380 670 460 450">
-      <path stroke-width="3.5" d="M 497 953 C 500 900, 492 850, 499 790" />
-      <path stroke-width="2" d="M 499 908 C 521 899, 543 893, 561 878" />
-      <path stroke-width="2" d="M 497 862 C 474 853, 452 851, 433 834" />
-      <path stroke-width="2" d="M 499 822 C 519 813, 537 800, 549 786" />
+      <Ink draw w={3.5} d="M 497 953 C 500 900, 492 850, 499 790" />
+      <Ink draw w={2} d="M 499 908 C 521 899, 543 893, 561 878" />
+      <Ink draw w={2} d="M 497 862 C 474 853, 452 851, 433 834" />
+      <Ink draw w={2} d="M 499 822 C 519 813, 537 800, 549 786" />
       {
-        saplingLeaves.map((l) => (
-          <g transform={`translate(${l.x} ${l.y}) rotate(${l.rot}) scale(${l.scale * 0.7})`}>
-            <path class={`leaf leaf-${l.variant + 1}`} data-tree-pop d={LEAF_D[l.variant]} />
+        saplingLeaves.map((l, i) => (
+          <g transform={`translate(${l.x} ${l.y}) rotate(${l.rot}) scale(${l.scale * 0.7})`} data-leaf>
+            <g data-tree-pop>
+              <path class={`leaf leaf-${l.variant + 1}`} style={`fill: ${leafFill(l.variant, 700 + i)}`} d={LEAF_D[l.variant]} />
+              <path class="vein" d={VEIN_D} />
+            </g>
           </g>
         ))
       }
@@ -361,28 +400,34 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
     <!-- 03 · knowing — the turn inward: roots, and the trunk thickens -->
     <g data-tree-stage="knowing" data-tree-cam="250 790 500 460">
       <path class="wash shadow-wash" data-tree-wash="bloom" fill-opacity="0.14" d={blob(500, 1080, 66, 9, 9, 58)} />
-      <path stroke-width="2.5" d="M 496 1058 C 470 1083, 432 1097, 398 1118 C 379 1130, 360 1132, 343 1147" />
-      <path stroke-width="1.5" d="M 431 1101 C 421 1117, 408 1125, 392 1129" />
-      <path stroke-width="2.5" d="M 501 1060 C 504 1093, 493 1121, 500 1152 C 504 1170, 496 1185, 485 1197" />
-      <path stroke-width="2.5" d="M 505 1058 C 531 1079, 562 1089, 591 1108 C 611 1122, 632 1124, 645 1141" />
-      <path stroke-width="1.5" d="M 561 1091 C 573 1105, 589 1111, 605 1110" />
-      <path stroke-width="1.25" d="M 420 1141 l -8 10" />
-      <path stroke-width="1.25" d="M 521 1171 l 6 12" />
-      <path stroke-width="1.25" d="M 611 1128 l 10 8" />
-      <path stroke-width="1.75" d="M 510 1052 C 513 1000, 504 945, 509 885 C 512 845, 506 815, 509 792" />
+      <Ink draw w={2.5} d="M 496 1058 C 470 1083, 432 1097, 398 1118 C 379 1130, 360 1132, 343 1147" />
+      <Ink draw w={1.5} d="M 431 1101 C 421 1117, 408 1125, 392 1129" />
+      <Ink draw w={2.5} d="M 501 1060 C 504 1093, 493 1121, 500 1152 C 504 1170, 496 1185, 485 1197" />
+      <Ink draw w={2.5} d="M 505 1058 C 531 1079, 562 1089, 591 1108 C 611 1122, 632 1124, 645 1141" />
+      <Ink draw w={1.5} d="M 561 1091 C 573 1105, 589 1111, 605 1110" />
+      <Ink draw w={1.25} d="M 420 1141 l -8 10" />
+      <Ink draw w={1.25} d="M 521 1171 l 6 12" />
+      <Ink draw w={1.25} d="M 611 1128 l 10 8" />
+      <Ink draw w={1.75} d="M 510 1052 C 513 1000, 504 945, 509 885 C 512 845, 506 815, 509 792" />
     </g>
 
     <!-- 04 · the leap — the trunk surges; one bold branch reaches out -->
     <g data-tree-stage="leap" data-tree-cam="130 370 580 620">
-      <path stroke-width="4" d="M 499 790 C 506 715, 486 655, 497 585 C 502 545, 492 525, 495 502" />
-      <path stroke-width="1.75" d="M 509 786 C 515 718, 498 652, 506 582" />
-      <path stroke-width="3" d="M 497 640 C 560 611, 641 581, 701 520 C 741 480, 777 461, 807 448" />
-      <path stroke-width="1.5" d="M 701 520 C 717 501, 719 484, 713 468" />
-      <g transform="translate(807 448) rotate(-32)">
-        <path class="leaf leaf-1" data-tree-pop d={LEAF_D[0]}></path>
+      <Ink draw w={4} d="M 499 790 C 506 715, 486 655, 497 585 C 502 545, 492 525, 495 502" />
+      <Ink draw w={1.75} d="M 509 786 C 515 718, 498 652, 506 582" />
+      <Ink draw w={3} d="M 497 640 C 560 611, 641 581, 701 520 C 741 480, 777 461, 807 448" />
+      <Ink draw w={1.5} d="M 701 520 C 717 501, 719 484, 713 468" />
+      <g transform="translate(807 448) rotate(-32)" data-leaf>
+        <g data-tree-pop>
+          <path class="leaf leaf-1" style={`fill: ${leafFill(0, 903)}`} d={LEAF_D[0]}></path>
+          <path class="vein" d={VEIN_D}></path>
+        </g>
       </g>
-      <g transform="translate(795 452) rotate(-80)">
-        <path class="leaf leaf-3" data-tree-pop d={LEAF_D[2]}></path>
+      <g transform="translate(795 452) rotate(-80)" data-leaf>
+        <g data-tree-pop>
+          <path class="leaf leaf-3" style={`fill: ${leafFill(2, 904)}`} d={LEAF_D[2]}></path>
+          <path class="vein" d={VEIN_D}></path>
+        </g>
       </g>
     </g>
 
@@ -391,38 +436,42 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
       <path class="wash shadow-wash" data-tree-wash="bloom" fill-opacity="0.16" d={blob(370, 1073, 205, 11, 11, 36)} />
     </g>
 
-    <!-- gentle perpetual sway over the crown -->
+    <!-- the crown: it breathes, and leans with the wind of your scroll
+         (useSceneLife) -->
     <g data-tree-sway>
       <!-- 05 · now — the canopy fans wide and fills with green -->
       <g data-tree-stage="now" data-tree-cam="110 130 780 700">
-        <path stroke-width="2.5" d="M 496 560 C 461 521, 421 491, 381 470 C 341 450, 311 421, 297 390" />
-        <path stroke-width="2.75" d="M 496 540 C 500 481, 480 421, 492 370 C 498 340, 489 311, 496 282" />
-        <path stroke-width="2.5" d="M 497 550 C 541 501, 591 471, 631 440 C 665 414, 687 384, 695 356" />
-        <path stroke-width="2.25" d="M 495 600 C 441 581, 391 571, 341 540 C 301 516, 269 501, 247 498" />
-        <path stroke-width="1.75" d="M 496 470 C 462 442, 432 424, 402 388" />
-        <path stroke-width="1.75" d="M 497 480 C 534 452, 568 437, 598 406" />
-        <path stroke-width="1.5" d="M 381 470 C 367 448, 363 428, 369 408" />
-        <path stroke-width="1.5" d="M 492 370 C 470 352, 458 332, 458 310" />
-        <path stroke-width="1.5" d="M 631 440 C 647 424, 665 418, 683 420" />
-        <path stroke-width="1.5" d="M 341 540 C 331 520, 333 502, 343 486" />
+        <Ink draw w={2.5} d="M 496 560 C 461 521, 421 491, 381 470 C 341 450, 311 421, 297 390" />
+        <Ink draw w={2.75} d="M 496 540 C 500 481, 480 421, 492 370 C 498 340, 489 311, 496 282" />
+        <Ink draw w={2.5} d="M 497 550 C 541 501, 591 471, 631 440 C 665 414, 687 384, 695 356" />
+        <Ink draw w={2.25} d="M 495 600 C 441 581, 391 571, 341 540 C 301 516, 269 501, 247 498" />
+        <Ink draw w={1.75} d="M 496 470 C 462 442, 432 424, 402 388" />
+        <Ink draw w={1.75} d="M 497 480 C 534 452, 568 437, 598 406" />
+        <Ink draw w={1.5} d="M 381 470 C 367 448, 363 428, 369 408" />
+        <Ink draw w={1.5} d="M 492 370 C 470 352, 458 332, 458 310" />
+        <Ink draw w={1.5} d="M 631 440 C 647 424, 665 418, 683 420" />
+        <Ink draw w={1.5} d="M 341 540 C 331 520, 333 502, 343 486" />
         {
-          canopyLeaves.map((l) => (
-            <g transform={`translate(${l.x} ${l.y}) rotate(${l.rot}) scale(${l.scale})`}>
-              <path class={`leaf leaf-${l.variant + 1}`} data-tree-pop d={LEAF_D[l.variant]} />
+          canopyLeaves.map((l, i) => (
+            <g transform={`translate(${l.x} ${l.y}) rotate(${l.rot}) scale(${l.scale})`} data-leaf>
+              <g data-tree-pop>
+                <path class={`leaf leaf-${l.variant + 1}`} style={`fill: ${leafFill(l.variant, i)}`} d={LEAF_D[l.variant]} />
+                <path class="vein" d={VEIN_D} />
+              </g>
             </g>
           ))
         }
-        <path stroke-width="1.5" d="M 762 262 c 8 -9 16 -9 22 0 c 6 -9 14 -9 20 0" />
-        <path stroke-width="1.25" d="M 826 306 c 6 -7 12 -7 17 0 c 5 -7 11 -7 16 0" />
+        <Ink draw kind="line" w={1.5} d="M 762 262 c 8 -9 16 -9 22 0 c 6 -9 14 -9 20 0" data-bird />
+        <Ink draw kind="line" w={1.25} d="M 826 306 c 6 -7 12 -7 17 0 c 5 -7 11 -7 16 0" data-bird />
       </g>
 
       <!-- 06 · ethos — the fruit arrives: a lot of apples, all still hanging -->
       <g data-tree-stage="ethos" data-tree-cam="310 170 680 620">
         {
           APPLES.map(([x, y, s]) => (
-            <g transform={`translate(${x} ${y}) scale(${s})`}>
+            <g transform={`translate(${x} ${y}) scale(${s})`} data-apple>
               <g data-tree-pop>
-                <path stroke-width="1.5" d="M 0 -14 C -1 -10, -1 -7, 0 -4" />
+                <Ink w={1.5} d="M 0 -14 C -1 -10, -1 -7, 0 -4" />
                 <circle class="apple" stroke-width="1.25" r="9" cy="4" />
                 <path class="leaf leaf-2" d="M 0 -10 C 4 -14, 10 -16, 13 -11 C 10 -7, 4 -7, 0 -10 Z" />
               </g>
@@ -443,41 +492,71 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
         d="M 724 398 C 734 428, 737 456, 730 482"
       />
     </g>
-
   </svg>
 </div>
 
 <style>
+  /* the act's pigments, blended by --day: 0 = night, 1 = the sand morning
+     (useDayScrub scrubs it with the scroll across The Leap → Now) */
   .tree-art {
+    --day: 0;
+    --mix: calc(var(--day) * 100%);
+    --color-tree: color-mix(
+      in oklab,
+      color-mix(in srgb, var(--color-gold-400) 90%, transparent),
+      #4a4030 var(--mix)
+    );
+    --scene-glow: color-mix(in oklab, #e1b479, #fff6e6 var(--mix));
+    --scene-cloud: color-mix(in oklab, #4a4335, #e0d2b0 var(--mix));
+    --scene-cloud-shade: color-mix(in oklab, #383226, #b39a6f var(--mix));
+    --scene-hill-far: color-mix(in oklab, #2d2a1f, #91805e var(--mix));
+    --scene-meadow: color-mix(in oklab, #262319, #8d8557 var(--mix));
+    --scene-meadow-deep: color-mix(in oklab, #181610, #6d6a44 var(--mix));
+    --scene-grass: color-mix(in oklab, #465831, #5e7838 var(--mix));
+    --scene-grass-dim: color-mix(in oklab, #37432a, #52683a var(--mix));
+    --scene-house: color-mix(in oklab, #4a4132, #d8c8a6 var(--mix));
+    --scene-roof: color-mix(in oklab, #55311e, #8a4a30 var(--mix));
+    --scene-window: #ffd08e;
+    --scene-shadow: color-mix(in oklab, #0e0c07, #4a4030 var(--mix));
+    --vein: color-mix(in oklab, #2c3f1d, #33491f var(--mix));
     color: var(--color-tree);
-    transition: color 1.2s ease;
   }
-  /* depth of field: far and mid planes blur; the tree stays crisp.
-     On touch devices the blur re-rasterizes on every camera frame (iOS
-     Safari) and janks the scroll — the planes go crisp there instead. */
-  .layer-far {
+  .plane {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  /* depth of field: far and mid planes blur; the tree stays crisp. Each is
+     its own svg, so a sway in front never re-blurs it (no will-change: a
+     promoted full-screen layer re-blurs every camera frame instead). On
+     touch devices the blur re-rasterizes on every camera frame (iOS Safari)
+     and janks the scroll — the planes go crisp there instead. */
+  .plane-far {
     filter: blur(3px);
   }
-  .layer-mid {
+  .plane-mid {
     filter: blur(1.1px);
   }
   @media (pointer: coarse), (max-width: 820px) {
-    .layer-far,
-    .layer-mid {
+    .plane-far,
+    .plane-mid {
       filter: none;
     }
   }
 
-  /* watercolor washes: translucent pigment with a pooled same-color edge;
-     fills cross-fade when the ground flips act */
+  /* pen ink (rendered by <Ink>) */
+  .tree-art :global(.ink) {
+    fill: currentColor;
+    stroke: none;
+  }
+  .tree-art :global(.ink.roof) {
+    fill: var(--scene-roof);
+  }
+
+  /* watercolor washes: translucent pigment with a pooled same-color edge */
   .wash {
     stroke-width: 2;
-    transition:
-      fill 1.2s ease,
-      stroke 1.2s ease;
-  }
-  stop {
-    transition: stop-color 1.2s ease;
   }
   .cloud {
     fill: var(--scene-cloud);
@@ -496,25 +575,20 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
     stroke: none;
   }
   .grass-dim {
-    stroke: var(--scene-grass-dim);
-    transition: stroke 1.2s ease;
+    fill: var(--scene-grass-dim);
+    stroke: none;
   }
   .grass {
-    stroke: var(--scene-grass);
-    transition: stroke 1.2s ease;
+    fill: var(--scene-grass);
+    stroke: none;
   }
   .house {
     fill: var(--scene-house);
     stroke: var(--scene-house);
   }
-  .roof {
-    stroke: var(--scene-roof);
-    transition: stroke 1.2s ease;
-  }
   .roof-fill {
     fill: var(--scene-roof);
     stroke: none;
-    transition: fill 1.2s ease;
   }
   .window {
     fill: var(--scene-window);
@@ -535,6 +609,12 @@ const grassD = (x: number, lean: number, tall: number, base = 1058) =>
   }
   .leaf-3 {
     fill: var(--color-leaf-3);
+  }
+  .vein {
+    fill: none;
+    stroke: var(--vein);
+    stroke-width: 0.6;
+    opacity: 0.6;
   }
   .apple {
     fill: url(#apple-grad);

@@ -86,6 +86,17 @@
   }
 }
 
+/* cold-press paper: a fine lit tooth over the whole frame, chrome included,
+   blended soft-light so it reads as the page's grain, not a layer. It
+   comes up as the ground turns to sand (--day, scrubbed by useDayScrub) —
+   real paper shows most where it's light */
+@utility paper-tooth {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='280' height='280'%3E%3Cfilter id='t' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' seed='4' stitchTiles='stitch'/%3E%3CfeDiffuseLighting surfaceScale='1.4' lighting-color='%23fff'%3E%3CfeDistantLight azimuth='225' elevation='55'/%3E%3C/feDiffuseLighting%3E%3CfeColorMatrix values='1.3 0 0 0 -0.55 1.3 0 0 0 -0.55 1.3 0 0 0 -0.55 0 0 0 0 1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23t)'/%3E%3C/svg%3E");
+  background-size: 280px 280px;
+  mix-blend-mode: soft-light;
+  opacity: calc(0.12 + 0.1 * var(--day, 0));
+}
+
 /* mobile legibility: a halo of the chapter's own ground color hugging the
    glyphs themselves (no panel, no shape) for copy that has to sit over
    the tree on narrow viewports — set `--scrim` to the chapter's ground
@@ -129,46 +140,8 @@
     color-scheme: dark;
   }
 
-  /* the Tree of Growth's ink: gold silhouette on the night ground, warm ink
-     once the ground turns to sand (data-ground flips at chapter 05) */
-  :root {
-    --color-tree: color-mix(in srgb, var(--color-gold-400) 90%, transparent);
-    /* foreground silhouettes — near-black against the sun's glow */
-    --color-tree-fore: #0e0c07;
-
-    /* watercolor washes, night act: everything is a gold-tinted silhouette
-       barely lifted off the dark ground — the sun is the only real light */
-    --scene-glow: #e1b479;
-    --scene-cloud: #4a4335;
-    --scene-cloud-shade: #383226;
-    --scene-hill-far: #2d2a1f;
-    --scene-meadow: #262319;
-    --scene-meadow-deep: #181610;
-    --scene-grass: #465831;
-    --scene-grass-dim: #37432a;
-    --scene-house: #4a4132;
-    --scene-roof: #55311e;
-    --scene-window: #ffd08e;
-    --scene-shadow: #0e0c07;
-  }
-  :root[data-ground="sand"] {
-    --color-tree: #4a4030;
-    --color-tree-fore: #35301f;
-
-    /* day act: the same pigments at full strength on warm paper */
-    --scene-glow: #fff6e6;
-    --scene-cloud: #e0d2b0;
-    --scene-cloud-shade: #b39a6f;
-    --scene-hill-far: #91805e;
-    --scene-meadow: #8d8557;
-    --scene-meadow-deep: #6d6a44;
-    --scene-grass: #5e7838;
-    --scene-grass-dim: #52683a;
-    --scene-house: #d8c8a6;
-    --scene-roof: #8a4a30;
-    --scene-window: #ffd08e;
-    --scene-shadow: #4a4030;
-  }
+  /* the Tree of Growth's ink and scene pigments live on the scene itself
+     (TreeOfGrowth.astro), blended by the scroll-scrubbed --day */
 
   body {
     background-color: var(--color-bg);

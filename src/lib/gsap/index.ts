@@ -23,6 +23,7 @@ export { useGroundShift } from "./composables/useGroundShift";
 export { useGroundGradient, buildGroundGradient } from "./composables/useGroundGradient";
 export { useGroundTone } from "./composables/useGroundTone";
 export { useTreeGrowth } from "./composables/useTreeGrowth";
+export { useDayScrub } from "./composables/useDayScrub";
 export { useScrollProgress } from "./composables/useScrollProgress";
 export {
   useCinematicOpening,

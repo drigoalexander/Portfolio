@@ -73,12 +73,16 @@ onUnmounted(() => handle?.kill());
   color: var(--color-muted);
   transition: color 0.5s ease;
 }
-:root:not([data-ground="sand"]) .drift {
+:root:not([data-hud="sand"]) .drift {
   text-shadow:
-    0 0 8px rgb(20 17 11 / 0.6),
-    0 0 18px rgb(20 17 11 / 0.4);
+    0 0 2px rgb(20 17 11 / 0.9),
+    0 0 6px rgb(20 17 11 / 0.75),
+    0 0 14px rgb(20 17 11 / 0.5);
 }
-:root[data-ground="sand"] .drift {
+:root[data-hud="sand"] .drift {
+  text-shadow: 0 0 6px rgb(230 214 180 / 0.6);
+}
+:root[data-hud="sand"] .drift {
   color: var(--color-sand-ink-soft);
 }
 .pulse {

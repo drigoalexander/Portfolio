@@ -1,0 +1,44 @@
+---
+/**
+ * One pen stroke of the Tree of Growth: the stroke `d` rendered as its
+ * build-time ink outline (see `src/lib/ink.ts`). With `draw`, the outline
+ * is revealed through a mask holding the original centerline — that mask
+ * path (`data-ink-draw`) is what the growth timeline DrawSVGs, so a stroke
+ * still draws itself on while showing a real pen's weight.
+ */
+import { inkOutline, type InkProfile } from "../../lib/ink";
+
+interface Props {
+  d: string;
+  /** the stroke width it replaces */
+  w: number;
+  kind?: InkProfile;
+  draw?: boolean;
+  /** fill opacity (the old stroke-opacity) */
+  o?: number;
+  class?: string;
+  [attr: `data-${string}`]: unknown;
+}
+const { d, w, kind = "pen", draw = false, o, class: className, ...rest } = Astro.props;
+
+let h = 0;
+for (const ch of d + w) h = (Math.imul(h, 31) + ch.charCodeAt(0)) | 0;
+const id = `ink-${(h >>> 0).toString(36)}`;
+const outline = inkOutline(d, w, kind, ((h >>> 0) % 997) / 97);
+---
+
+{
+  draw && (
+    <mask id={id}>
+      <path d={d} fill="none" stroke="#fff" stroke-width={w * 2.6} data-ink-draw />
+    </mask>
+  )
+}
+<path
+  class:list={["ink", className]}
+  d={outline}
+  fill-opacity={o}
+  mask={draw ? `url(#${id})` : undefined}
+  data-ink
+  {...rest}
+/>

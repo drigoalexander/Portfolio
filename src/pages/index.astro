@@ -78,10 +78,8 @@ const fallbackGradient = "linear-gradient(to bottom, " + fallbackStops.join(", "
   <ChapterIndicator client:visible chapters={indicatorChapters} />
   <CoordinateDrift client:visible />
 
-  <!-- one film-grain pass over the whole frame, chrome included -->
-  <div class="pointer-events-none fixed inset-0 z-50" aria-hidden="true">
-    <div class="film-grain h-full w-full"></div>
-  </div>
+  <!-- the whole frame sits on cold-press paper, chrome included -->
+  <div class="paper-tooth pointer-events-none fixed inset-0 z-50" aria-hidden="true"></div>
 </Layout>
 
 <style>
@@ -99,7 +97,7 @@ const fallbackGradient = "linear-gradient(to bottom, " + fallbackStops.join(", "
 </style>
 
 <script>
-  import { useGroundGradient, useGroundTone } from "../lib/gsap";
+  import { useDayScrub, useGroundGradient, useGroundTone } from "../lib/gsap";
   import { chapters } from "../content/story";
 
   // one document-long sunrise: a measured stop at each chapter's center, so
@@ -112,4 +110,10 @@ const fallbackGradient = "linear-gradient(to bottom, " + fallbackStops.join(", "
   // flip chrome + tree ink to the light ground at THE WIDER WORLD — works on
   // mobile too, where the ChapterIndicator island is display:none
   useGroundTone("#now");
+  // the bottom-edge HUD turns as soon as the light ground reaches it
+  useGroundTone("#now", { attr: "hud", start: "top bottom" });
+
+  // the day arrives under the reader's hand: scene pigments, tree ink and
+  // paper tooth blend with the scroll across The Leap → Now
+  useDayScrub(Array.from(document.querySelectorAll(".tree-art, .paper-tooth")), "#now");
 </script>

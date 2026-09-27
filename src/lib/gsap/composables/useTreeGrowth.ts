@@ -32,35 +32,116 @@ export function washReveal(mode: string | null): { from: gsap.TweenVars; to: gsa
 
 /**
  * A stage's animatable items in document order: strokes, plus pop/wash
- * elements or *groups* (whose children are handled as one unit).
+ * elements or *groups* (whose children are handled as one unit). Pen ink
+ * (`<Ink>`) draws through its mask path (`data-ink-draw`), so the ink
+ * outline itself is never an item.
  */
 function stageItems(group: Element): Element[] {
   return Array.from(
     group.querySelectorAll(`[data-tree-pop], [data-tree-wash], ${DRAWABLE}`),
   ).filter((el) => {
+    if (el.hasAttribute("data-ink")) return false;
     const unitRoot = el.closest("[data-tree-pop], [data-tree-wash]");
     return !unitRoot || unitRoot === el;
   });
 }
 
-/** Queues every item in `group` onto `tl`: strokes draw, pops fade/scale in,
- *  washes bloom in. */
+const center = (el: Element): [number, number] => {
+  const r = el.getBoundingClientRect();
+  return [r.x + r.width / 2, r.y + r.height / 2];
+};
+
+/** where the stage's first stroke starts, in screen space */
+function stageOrigin(strokes: Element[]): [number, number] | null {
+  const first = strokes.find((el) => typeof (el as SVGGeometryElement).getTotalLength === "function");
+  if (!first) return null;
+  const geo = first as SVGGeometryElement;
+  const m = geo.getScreenCTM();
+  if (!m) return center(first);
+  const p = geo.getPointAtLength(0);
+  return [m.a * p.x + m.c * p.y + m.e, m.b * p.x + m.d * p.y + m.f];
+}
+
+/**
+ * A pen stroke's mask only exists while it draws: before, the ink is simply
+ * hidden; after, it's plain ink. Masks re-rasterize on every camera frame,
+ * so keeping ~30 of them live would tax the whole scroll.
+ */
+function inkSync(drawPath: Element): (() => void) | undefined {
+  const ink = drawPath.parentElement?.nextElementSibling as SVGElement | null;
+  const mask = ink?.getAttribute("mask");
+  if (!ink || !mask) return undefined;
+  let state = -1;
+  const apply = (next: number) => {
+    if (next === state) return;
+    state = next;
+    ink.style.visibility = next === 0 ? "hidden" : "";
+    if (next === 1) ink.setAttribute("mask", mask);
+    else ink.removeAttribute("mask");
+  };
+  apply(0); // undrawn until its stage says otherwise
+  return function (this: gsap.core.Tween) {
+    const p = this.progress();
+    apply(p <= 0 ? 0 : p >= 1 ? 2 : 1);
+  };
+}
+
+/** Queues every item in `group` onto `tl`: strokes draw, washes bloom in,
+ *  then the pops — leaves unfurl from their stems and apples swell from
+ *  theirs, in order of distance from the first stroke, so the foliage
+ *  follows the growing tip outward. */
 function queueStage(tl: gsap.core.Timeline, group: Element): void {
-  for (const el of stageItems(group)) {
-    if (el.hasAttribute("data-tree-pop")) {
+  const items = stageItems(group);
+  const strokes = items.filter((el) => !el.hasAttribute("data-tree-pop"));
+  let pops = items.filter((el) => el.hasAttribute("data-tree-pop"));
+  const origin = stageOrigin(strokes);
+  if (origin) {
+    const dist = new Map(pops.map((el) => {
+      const [x, y] = center(el);
+      return [el, Math.hypot(x - origin[0], y - origin[1])];
+    }));
+    pops = pops.sort((a, b) => dist.get(a)! - dist.get(b)!);
+  }
+
+  for (const el of strokes) {
+    if (el.hasAttribute("data-tree-wash")) {
+      const { from, to } = washReveal(el.getAttribute("data-tree-wash"));
+      tl.fromTo(el, from, to, "-=0.35");
+    } else {
+      tl.fromTo(
+        el,
+        { drawSVG: "0%" },
+        { drawSVG: "100%", duration: drawTime(el), onUpdate: inkSync(el) },
+        "-=0.25",
+      );
+    }
+  }
+  pops.forEach((el, i) => {
+    const holder = el.parentElement;
+    if (holder?.hasAttribute("data-leaf")) {
+      // folded along the branch, it opens about the stem (its local 0,0)
+      tl.fromTo(
+        el,
+        { autoAlpha: 0, scale: 0, rotation: i % 2 ? 38 : -38, svgOrigin: "0 0" },
+        { autoAlpha: 1, scale: 1, rotation: 0, duration: 0.45, ease: "power2.out" },
+        "-=0.28",
+      );
+    } else if (holder?.hasAttribute("data-apple")) {
+      tl.fromTo(
+        el,
+        { autoAlpha: 0, scale: 0, svgOrigin: "0 -14" },
+        { autoAlpha: 1, scale: 1, duration: 0.45, ease: "power2.out" },
+        "-=0.28",
+      );
+    } else {
       tl.fromTo(
         el,
         { autoAlpha: 0, scale: 0.3, transformOrigin: "50% 50%" },
         { autoAlpha: 1, scale: 1, duration: 0.45 },
         "-=0.28",
       );
-    } else if (el.hasAttribute("data-tree-wash")) {
-      const { from, to } = washReveal(el.getAttribute("data-tree-wash"));
-      tl.fromTo(el, from, to, "-=0.35");
-    } else {
-      tl.fromTo(el, { drawSVG: "0%" }, { drawSVG: "100%", duration: drawTime(el) }, "-=0.25");
     }
-  }
+  });
 }
 
 /**
@@ -75,10 +156,14 @@ function queueStage(tl: gsap.core.Timeline, group: Element): void {
  * - `data-tree-cam="x y w h"` — viewBox the camera settles on for that stage
  *   (on the onload group it becomes the initial frame)
  * - `data-tree-pop` — element/group pops in (fade/scale) instead of drawing;
- *   put authored transforms on a parent so the pop's scale doesn't clobber them
- * - `data-tree-sway` — group breathes with a slow perpetual sway
+ *   put authored transforms on a parent so the pop's scale doesn't clobber them.
+ *   Under a `data-leaf` parent it unfurls from the stem; under `data-apple` it
+ *   swells from the stem
  * - `data-tree-parallax="<n>"` — depth plane: drifts from -n to +n art units
  *   vertically across the full scroll (negative n = foreground, moves opposite)
+ *
+ * `svg` is the tree's own svg; every svg beside it (the blurred depth planes)
+ * shares the camera.
  */
 export function useTreeGrowth(svg: Target): AnimHandle {
   const gsap = registerGsap();
@@ -90,12 +175,14 @@ export function useTreeGrowth(svg: Target): AnimHandle {
     const root =
       typeof svg === "string" ? document.querySelector(svg) : Array.isArray(svg) ? svg[0] : svg;
     if (!(root instanceof SVGSVGElement)) return;
+    const scene = root.parentElement ?? root;
+    const planes = Array.from(scene.querySelectorAll("svg"));
 
     const initialCam =
       root
         .querySelector("[data-tree-stage-onload][data-tree-cam]")
         ?.getAttribute("data-tree-cam") ?? root.getAttribute("viewBox");
-    if (initialCam) root.setAttribute("viewBox", initialCam);
+    if (initialCam) planes.forEach((p) => p.setAttribute("viewBox", initialCam));
 
     const camStops: Array<{ section: HTMLElement; cam: string }> = [];
 
@@ -145,7 +232,7 @@ export function useTreeGrowth(svg: Target): AnimHandle {
         const from = Math.max((top - vh * 0.95) / total, cursor);
         const to = Math.max((top - vh * 0.15) / total, from + 0.001);
         camTl.fromTo(
-          root,
+          planes,
           { attr: { viewBox: prev } },
           { attr: { viewBox: cam }, duration: to - from, ease: "sine.inOut", immediateRender: false },
           from,
@@ -175,7 +262,7 @@ export function useTreeGrowth(svg: Target): AnimHandle {
 
     // depth planes: each drifts at its own rate while the camera moves —
     // motion parallax is what sells the scene as a space, not a drawing
-    for (const layer of Array.from(root.querySelectorAll("[data-tree-parallax]"))) {
+    for (const layer of Array.from(scene.querySelectorAll("[data-tree-parallax]"))) {
       const drift = Number(layer.getAttribute("data-tree-parallax"));
       if (!Number.isFinite(drift) || drift === 0) continue;
       gsap.fromTo(
@@ -187,19 +274,6 @@ export function useTreeGrowth(svg: Target): AnimHandle {
           scrollTrigger: { trigger: document.body, start: "top top", end: "bottom bottom", scrub: 0.8 },
         },
       );
-    }
-
-    // the perpetual sway repaints the whole canopy every frame (SVG inner
-    // transforms aren't compositor-accelerated on iOS Safari), so touch
-    // devices keep the crown still and spend the frames on scrolling
-    if (!window.matchMedia("(pointer: coarse)").matches) {
-      for (const group of Array.from(root.querySelectorAll("[data-tree-sway]"))) {
-        gsap.fromTo(
-          group,
-          { rotation: -0.9, transformOrigin: "50% 88%" },
-          { rotation: 0.9, duration: 7, ease: "sine.inOut", yoyo: true, repeat: -1 },
-        );
-      }
     }
   });
 

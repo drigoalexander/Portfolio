@@ -62,14 +62,20 @@ onUnmounted(() => observer?.disconnect());
 .indicator {
   color: var(--color-muted);
 }
-/* the ground under the HUD lightens before the act flips — a glyph halo
-   (same trick as the mobile copy-scrim) keeps the label legible over it */
-:root:not([data-ground="sand"]) .indicator p {
+/* the HUD sits on the bottom edge, where the ground lightens a screen
+   before the middle does — so it flips on data-hud (set when the next act's
+   ground reaches the bottom), and a glyph halo (the mobile copy-scrim's
+   trick) keeps it legible over the blend */
+:root:not([data-hud="sand"]) .indicator p {
   text-shadow:
-    0 0 8px rgb(20 17 11 / 0.6),
-    0 0 18px rgb(20 17 11 / 0.4);
+    0 0 2px rgb(20 17 11 / 0.9),
+    0 0 6px rgb(20 17 11 / 0.75),
+    0 0 14px rgb(20 17 11 / 0.5);
 }
-:root[data-ground="sand"] .indicator {
+:root[data-hud="sand"] .indicator p {
+  text-shadow: 0 0 6px rgb(230 214 180 / 0.6);
+}
+:root[data-hud="sand"] .indicator {
   color: var(--color-sand-ink-soft);
 }
 .bar {
@@ -88,7 +94,7 @@ onUnmounted(() => observer?.disconnect());
   background-color: var(--color-accent);
   opacity: 1;
 }
-:root[data-ground="sand"] .bar.lit {
+:root[data-hud="sand"] .bar.lit {
   background-color: var(--color-sand-ink);
 }
 </style>
