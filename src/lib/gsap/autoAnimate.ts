@@ -66,7 +66,7 @@ export function autoAnimate(root: ParentNode = document): () => void {
         case "reveal":
           gsap.from(el, {
             opacity: 0, y: cfg.y, duration: cfg.duration ?? 0.9,
-            delay: cfg.delay, ease: EASES.sweep, scrollTrigger: st,
+            delay: cfg.delay, ease: EASES.settle, scrollTrigger: st,
           });
           break;
         case "split": {
@@ -79,8 +79,8 @@ export function autoAnimate(root: ParentNode = document): () => void {
             onSplit: (self) =>
               gsap.from(self.lines, {
                 yPercent: 112, stagger: 0.09,
-                duration: cfg.duration ?? 1.1, delay: cfg.delay,
-                ease: EASES.sweep, scrollTrigger: { ...st },
+                duration: cfg.duration ?? 1.3, delay: cfg.delay,
+                ease: EASES.settle, scrollTrigger: { ...st },
               }),
           });
           break;

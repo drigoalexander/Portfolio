@@ -140,12 +140,14 @@ export function useTreeGrowth(svg: Target): AnimHandle {
       let cursor = 0;
       for (const { section, cam } of camStops) {
         const top = section.getBoundingClientRect().top + window.scrollY;
-        const from = Math.max((top - vh * 0.85) / total, cursor);
-        const to = Math.max((top - vh * 0.25) / total, from + 0.001);
+        // each move eases out of one composed frame and into the next, like a
+        // dolly — a linear segment would start and stop the camera dead
+        const from = Math.max((top - vh * 0.95) / total, cursor);
+        const to = Math.max((top - vh * 0.15) / total, from + 0.001);
         camTl.fromTo(
           root,
           { attr: { viewBox: prev } },
-          { attr: { viewBox: cam }, duration: to - from, immediateRender: false },
+          { attr: { viewBox: cam }, duration: to - from, ease: "sine.inOut", immediateRender: false },
           from,
         );
         prev = cam;
