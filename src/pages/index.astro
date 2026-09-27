@@ -30,7 +30,7 @@ const fallbackStops = chapters.map(
 const fallbackGradient = "linear-gradient(to bottom, " + fallbackStops.join(", ") + ")";
 ---
 
-<Layout title={`${site.name} — ${site.role}`}>
+<Layout title={`${site.name} · ${site.role}`}>
   <a
     href="#main"
     class="sr-only z-50 rounded-full bg-accent px-5 py-2 text-dusk-950 focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
@@ -46,7 +46,7 @@ const fallbackGradient = "linear-gradient(to bottom, " + fallbackStops.join(", "
     <a
       href="#hero"
       data-site-logo
-      aria-label={`${site.wordmark} — home`}
+      aria-label={`${site.name}, home`}
       class="site-logo inline-flex focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-current"
     >
       <LogoMark class="h-7 w-auto" />

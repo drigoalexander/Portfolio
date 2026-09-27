@@ -14,8 +14,8 @@ interface Props {
   ogImage?: string;
 }
 const {
-  title = `${site.name} — ${site.role}`,
-  description = "Drigo Alexander — software engineer. A story about growing: from a small room in Jakarta to shipping for the wider world.",
+  title = `${site.name} · ${site.role}`,
+  description = "I'm Drigo Alexander, a software engineer in Jakarta building with teams across the US, Europe and Asia. Scroll my story as it grows into an apple tree.",
   ogImage = "/og.jpg",
 } = Astro.props;
 
@@ -23,7 +23,7 @@ const {
 // the real domain at launch and everything below follows automatically
 const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site) : undefined;
 const ogImageUrl = Astro.site ? new URL(ogImage, Astro.site).href : ogImage;
-const ogImageAlt = "A hand-drawn apple tree in a painted field — Drigo Alexander's story of growth";
+const ogImageAlt = "A hand-drawn apple tree growing in a painted field at dusk";
 
 const realSocials = site.socials.filter((s) => s.href.startsWith("http"));
 const jsonLd = [

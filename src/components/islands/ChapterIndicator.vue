@@ -53,7 +53,7 @@ onUnmounted(() => observer?.disconnect());
       />
     </div>
     <p class="font-sans text-[10px] tracking-[0.35em] uppercase">
-      {{ current?.num }} / {{ props.chapters.at(-1)?.num }} — {{ current?.label }}
+      {{ current?.num }} / {{ props.chapters.at(-1)?.num }} · {{ current?.label }}
     </p>
   </div>
 </template>

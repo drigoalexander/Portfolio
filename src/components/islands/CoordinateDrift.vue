@@ -4,16 +4,16 @@ import { useScrollProgress, type AnimHandle } from "../../lib/gsap";
 
 /**
  * Local → global, literally: the coordinates trace the real journey as the
- * story scrolls — Jakarta (Sari Tirta) → Australia (NexLaw) → Hong Kong
+ * story scrolls — Jakarta (Sari Tirta) → SF Bay Area (NexLaw) → Hong Kong
  * (Mazecare) → Wyoming (Tesserac), then full circle home for the epilogue.
- * Longitudes keep heading east (past 180°, past 360°) so the drift reads
- * as one trip around the world, never a backtrack. Each stop's `p` matches
+ * Each leg crosses the Pacific the short way; the last leg keeps heading
+ * east (past 360°) so the epilogue closes the circle. Each stop's `p` matches
  * that chapter's share of the scroll (8 equal sections).
  */
 const STOPS = [
   { p: 0.0, lat: -6.2088, lon: 106.8456, label: "Jakarta" }, // 00 · hero
   { p: 0.143, lat: -6.2088, lon: 106.8456, label: "Jakarta" }, // 01 · Sari Tirta
-  { p: 0.285, lat: -33.8688, lon: 151.2093, label: "Australia (Remote)" }, // 02 · NexLaw
+  { p: 0.285, lat: 37.7749, lon: 360 - 122.4194, label: "SF Bay Area (Remote)" }, // 02 · NexLaw
   { p: 0.428, lat: 22.3193, lon: 114.1694, label: "Hong Kong (Remote)" }, // 03 · Mazecare
   { p: 0.57, lat: 22.3193, lon: 114.1694, label: "Hong Kong (Remote)" }, // 04 · the leap
   { p: 0.713, lat: 41.14, lon: 360 - 104.82, label: "Wyoming (Remote)" }, // 05 · Tesserac
@@ -64,7 +64,7 @@ onUnmounted(() => handle?.kill());
     aria-hidden="true"
   >
     <span class="pulse inline-block h-1.5 w-1.5 rounded-full bg-current" />
-    <span>{{ coords }} — {{ place }}</span>
+    <span>{{ coords }} · {{ place }}</span>
   </p>
 </template>
 
