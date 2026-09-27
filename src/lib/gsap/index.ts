@@ -24,6 +24,7 @@ export { useGroundGradient, buildGroundGradient } from "./composables/useGroundG
 export { useGroundTone } from "./composables/useGroundTone";
 export { useTreeGrowth } from "./composables/useTreeGrowth";
 export { useDayScrub } from "./composables/useDayScrub";
+export { useSceneLife } from "./composables/useSceneLife";
 export { useScrollProgress } from "./composables/useScrollProgress";
 export {
   useCinematicOpening,

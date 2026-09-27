@@ -51,12 +51,29 @@ const fallbackGradient = "linear-gradient(to bottom, " + fallbackStops.join(", "
     >
       <LogoMark class="h-7 w-auto" />
     </a>
-    <a
-      href={`mailto:${site.email}`}
-      class="rounded-full bg-accent px-5 py-2 font-sans text-[10px] tracking-[0.25em] text-dusk-950 uppercase transition-[background-color,scale] duration-150 ease-hop hover:bg-accent-strong active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-strong"
-    >
-      Email me
-    </a>
+    <div class="flex items-center gap-4">
+      <!-- the scene's ambience: silent until asked for (fine pointers only,
+           where the wind it follows exists) -->
+      <button
+        type="button"
+        data-sound
+        aria-pressed="false"
+        aria-label="Sound"
+        class="sound-toggle hidden size-8 items-center justify-center rounded-full border border-current/25 transition-[border-color,scale] duration-150 ease-hop pointer-fine:inline-flex hover:border-current/60 active:scale-[0.94] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-current"
+      >
+        <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M2.5 6.2h2.2L8 3.5v9L4.7 9.8H2.5z"></path>
+          <path class="wave" d="M10.5 6c.7.6.7 3.4 0 4"></path>
+          <path class="wave" d="M12.3 4.4c1.6 1.4 1.6 5.8 0 7.2"></path>
+        </svg>
+      </button>
+      <a
+        href={`mailto:${site.email}`}
+        class="rounded-full bg-accent px-5 py-2 font-sans text-[10px] tracking-[0.25em] text-dusk-950 uppercase transition-[background-color,scale] duration-150 ease-hop hover:bg-accent-strong active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-3 focus-visible:outline-accent-strong"
+      >
+        Email me
+      </a>
+    </div>
   </header>
 
   <div id="ground" class="relative" style={`background-image: ${fallbackGradient}`}>
@@ -90,6 +107,13 @@ const fallbackGradient = "linear-gradient(to bottom, " + fallbackStops.join(", "
   :root[data-ground="sand"] .site-topbar {
     color: var(--color-sand-ink);
   }
+  .sound-toggle .wave {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .sound-toggle[aria-pressed="true"] .wave {
+    opacity: 1;
+  }
   /* while the bumper owns the frame, its flying mark IS the logo */
   :global(:root.cine-play) .site-logo {
     opacity: 0;
@@ -97,7 +121,15 @@ const fallbackGradient = "linear-gradient(to bottom, " + fallbackStops.join(", "
 </style>
 
 <script>
-  import { useDayScrub, useGroundGradient, useGroundTone } from "../lib/gsap";
+  import {
+    prefersReducedMotion,
+    registerGsap,
+    useDayScrub,
+    useGroundGradient,
+    useGroundTone,
+    useSceneLife,
+  } from "../lib/gsap";
+  import { createAmbience } from "../lib/ambience";
   import { chapters } from "../content/story";
 
   // one document-long sunrise: a measured stop at each chapter's center, so
@@ -116,4 +148,26 @@ const fallbackGradient = "linear-gradient(to bottom, " + fallbackStops.join(", "
   // the day arrives under the reader's hand: scene pigments, tree ink and
   // paper tooth blend with the scroll across The Leap → Now
   useDayScrub(Array.from(document.querySelectorAll(".tree-art, .paper-tooth")), "#now");
+
+  // the world answers the hand, and the ambience hears the same wind
+  const ambience = createAmbience();
+  useSceneLife("#tree-of-growth", { onFrame: ambience.frame, onTouch: ambience.tock });
+  const sound = document.querySelector<HTMLButtonElement>("[data-sound]");
+  sound?.addEventListener("click", () => {
+    ambience.enable(!ambience.enabled);
+    sound.setAttribute("aria-pressed", String(ambience.enabled));
+  });
+
+  // the logo rewinds time: the whole tree un-grows back to the seed, and any
+  // wheel or touch hands control straight back
+  document.querySelector("[data-site-logo]")?.addEventListener("click", (e) => {
+    if (prefersReducedMotion() || window.scrollY < 8) return;
+    e.preventDefault();
+    const gsap = registerGsap();
+    gsap.to(window, {
+      duration: gsap.utils.clamp(0.8, 2.4, 0.8 + window.scrollY / 4000),
+      ease: "power2.inOut",
+      scrollTo: { y: 0, autoKill: true },
+    });
+  });
 </script>
