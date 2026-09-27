@@ -2,9 +2,10 @@
  * The single source of copy for the landing page. The real journey:
  * Sari Tirta (the first job, the mentor) → NexLaw AI (SF Bay Area, a team
  * across Malaysia and Germany) → Mazecare (Hong Kong, the human lesson) →
- * Tesserac AI (now, Wyoming office, remote). The through-line: a tree never
- * leaves where it was planted, it grows until it reaches. Every caption
- * carries one real detail and one line about what the tree is doing.
+ * Tesserac AI (now, Wyoming office, remote). The through-line: a local boy
+ * from Indonesia breaks through a ceiling to build with the world, and it
+ * costs him to get there. Every caption carries one real detail and one
+ * line about what the tree is doing.
  * House rules: no em-dashes, no "not X, it's Y", no proverb endings.
  */
 
@@ -64,11 +65,11 @@ export const chapters: Chapter[] = [
   {
     id: "hero",
     num: "00",
-    eyebrow: "Software Engineer · Jakarta",
+    eyebrow: "Software Engineer · Indonesia",
     title: "DRIGO ALEXANDER",
     body:
-      "I've built software with teams on three continents. " +
-      "All of it from Jakarta.",
+      "A local boy from Indonesia, now building with talented people " +
+      "across the world. This tree is how I got here, and what it cost.",
     tone: "dark",
     ground: "#14110b",
   },
@@ -78,10 +79,10 @@ export const chapters: Chapter[] = [
     eyebrow: "Sprout",
     title: "THE FIRST TWO LEAVES.",
     body:
-      "My first job was at Sari Tirta Indonesia, in Jakarta. My mentor " +
-      "there taught me how to build software. She also taught me who to " +
-      "be while I built it. Those are the first two leaves on this tree. " +
-      "Everything after grew from them.",
+      "My first job was a local one, at Sari Tirta Indonesia in " +
+      "Jakarta. My mentor there taught me how to build software, and who " +
+      "to be while I built it. Those are the first two leaves on this " +
+      "tree. Back then, the world felt very far away.",
     meta: "Sari Tirta Indonesia · Jakarta",
     tone: "dark",
     ground: "#1f1d17",
@@ -90,13 +91,13 @@ export const chapters: Chapter[] = [
     id: "craft",
     num: "02",
     eyebrow: "Sapling",
-    title: "FOUR TIME ZONES.",
+    title: "THE PROVING GROUND.",
     body:
-      "NexLaw AI was my first remote job. The CEO was in San Francisco, " +
-      "my backend lead was in Germany, most of the team was in Malaysia, " +
-      "and I was in Jakarta. Days went to Malaysia, evenings to Germany, " +
-      "late nights to San Francisco. I kept showing up, and it paid off. " +
-      "They trusted me enough to bring in my own team.",
+      "NexLaw AI was my first global team, run out of the San Francisco " +
+      "Bay Area. I was the local developer from Jakarta, and I felt I had " +
+      "to prove I belonged there. So I worked San Francisco's hours on " +
+      "top of my own. It was heavy, and it paid off. They trusted me " +
+      "enough to bring in my own team.",
     meta: "NexLaw AI · San Francisco Bay Area",
     tone: "dark",
     ground: "#26241d",
@@ -107,11 +108,11 @@ export const chapters: Chapter[] = [
     eyebrow: "Roots",
     title: "HE GUARDED OUR EVENINGS.",
     body:
-      "Mazecare, out of Hong Kong, builds an AI platform for clinics, " +
-      "hospitals and health insurers. Our CEO taught me to treat people " +
-      "as people. He protected our evenings as if they were his own. I " +
-      "didn't plan to leave, and it hurt when I did. This is where the " +
-      "roots went down. The rest of the tree stands on them.",
+      "At Mazecare, a healthcare AI company in Hong Kong, I met a CEO who " +
+      "treated people as people. After all those late nights, he " +
+      "protected our evenings as if they were his own. I didn't plan to " +
+      "leave, and it hurt when I did. This is where the roots went down. " +
+      "The rest of the tree stands on them.",
     meta: "Mazecare · Hong Kong",
     tone: "dark",
     ground: "#323026",
@@ -120,13 +121,13 @@ export const chapters: Chapter[] = [
     id: "leap",
     num: "04",
     eyebrow: "Branch",
-    title: "THE LEAP.",
+    title: "I BLED FOR IT.",
     body:
-      "After that first job, every step came down to the same choice. " +
-      "Take the safe job close to home, or reach for a team in another " +
-      "time zone. I reached every time. Not every reach held, and a few " +
-      "of them I'd rather not put on a website. This branch grew out of " +
-      "the ones that did.",
+      "As a local Indonesian developer, the best teams in the world felt " +
+      "out of reach. There was a ceiling, and I could feel it. Getting " +
+      "through it cost me late nights, doubt, and a goodbye I didn't " +
+      "plan. I kept going anyway, even when it hurt. This branch is the " +
+      "part that broke through.",
     meta: "Between Hong Kong and Wyoming",
     tone: "dark",
     ground: "#3f3b2f",
@@ -135,11 +136,12 @@ export const chapters: Chapter[] = [
     id: "now",
     num: "05",
     eyebrow: "Canopy",
-    title: "OFFICE IN WYOMING.",
+    title: "THE WIDER WORLD.",
     body:
-      "At Tesserac AI, my team builds crafted software for enterprise " +
-      "companies. The team is from Serbia, Germany, Spain and Malaysia, " +
-      "and I'm still in Jakarta. The canopy is just wider now.",
+      "Today I build crafted software for enterprise companies at " +
+      "Tesserac AI, with talented people from across the world. I'm still " +
+      "the local boy from Indonesia. The canopy just grew through the " +
+      "ceiling.",
     meta: "Tesserac AI · Wyoming, USA · Now",
     tone: "sand",
     ground: "#a69374",
@@ -165,7 +167,8 @@ export const chapters: Chapter[] = [
     body:
       "Look up. None of the apples have fallen, and the tree isn't " +
       "finished. If you're building something people should love to use, " +
-      "tell me about it. Email is the fastest way to reach me.",
+      "tell me about it. If you're a local developer staring at the same " +
+      "ceiling, write to me too.",
     meta: "Grown in Jakarta",
     tone: "sand",
     ground: "#c3ab80",
