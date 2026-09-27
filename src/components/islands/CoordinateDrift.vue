@@ -73,6 +73,11 @@ onUnmounted(() => handle?.kill());
   color: var(--color-muted);
   transition: color 0.5s ease;
 }
+:root:not([data-ground="sand"]) .drift {
+  text-shadow:
+    0 0 8px rgb(20 17 11 / 0.6),
+    0 0 18px rgb(20 17 11 / 0.4);
+}
 :root[data-ground="sand"] .drift {
   color: var(--color-sand-ink-soft);
 }

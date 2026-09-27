@@ -35,8 +35,10 @@ export function useCinematicOpening(overlay: Target): AnimHandle {
   const gsap = registerGsap();
   const reduce = prefersReducedMotion();
   let restoreScroll: (() => void) | null = null;
+  let removeSkip: (() => void) | null = null;
 
   const releaseFrame = () => {
+    removeSkip?.();
     restoreScroll?.();
     document.documentElement.classList.remove(OPENING_CLASS);
   };
@@ -145,7 +147,21 @@ export function useCinematicOpening(overlay: Target): AnimHandle {
       );
 
     // no topbar target (markup changed?) — degrade to a clean fade-out
-    if (!target) tl.to(mark, { autoAlpha: 0, duration: 0.4, ease: "power1.in" }, "exit+=0.3");
+    if (!target) tl.to(mark, { autoAlpha: 0, duration: 0.4, ease: "power1.out" }, "exit+=0.3");
+
+    // the bumper is theater, never a hostage — any input skips to the landing
+    const skip = () => {
+      const exitTime = tl.labels["exit"];
+      if (typeof exitTime === "number" && tl.time() < exitTime) tl.seek(exitTime);
+      tl.timeScale(3);
+    };
+    window.addEventListener("pointerdown", skip, { passive: true });
+    window.addEventListener("keydown", skip);
+    removeSkip = () => {
+      window.removeEventListener("pointerdown", skip);
+      window.removeEventListener("keydown", skip);
+      removeSkip = null;
+    };
   });
 
   const handle = toHandle(ctx);

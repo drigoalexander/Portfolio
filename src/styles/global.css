@@ -65,6 +65,11 @@
   --font-display: "Geist Pixel", ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", sans-serif;
   --font-sans: "Ubuntu", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+  /* ---- motion: CSS mirrors of the GSAP CustomEases (src/lib/gsap/eases.ts) ---- */
+  --ease-hop: cubic-bezier(0.14, 1, 0.4, 1);
+  --ease-sweep: cubic-bezier(0.6, 0, 0.05, 1);
+  --ease-glide: cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 /* atmosphere: film grain overlay — apply to a relatively-positioned layer */
@@ -181,12 +186,14 @@
     color: var(--color-dusk-950);
   }
 
-  /* reduced-motion global safety net */
+  /* reduced-motion safety net: animations off; transitions may only carry
+     color and opacity — movement (transform, size, position) never eases */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
+      transition-property: color, background-color, border-color,
+        text-decoration-color, fill, stroke, stop-color, opacity !important;
     }
   }
 }

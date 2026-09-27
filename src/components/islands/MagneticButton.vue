@@ -15,7 +15,7 @@ onUnmounted(() => handle?.kill());
 <template>
   <button
     ref="el"
-    class="inline-flex items-center gap-2 rounded-full border border-accent bg-surface px-8 py-4 text-ink"
+    class="inline-flex items-center gap-2 rounded-full border border-accent bg-surface px-8 py-4 text-ink transition-[scale] duration-150 ease-hop active:scale-[0.97]"
   >
     {{ props.label }}
   </button>
